@@ -41,6 +41,18 @@ https://github.com/rohankishore/ZenNotes/assets/109947257/e8a7d44d-6a83-4c38-a4c
   python -m main.py
   ```
 
+### Build ZenNotes
+
+```bash
+python -m build.py
+```
+
+or type in the [Pyinstaller](https://pypi.org/project/pyinstaller/) command:
+
+```bash
+pyinstaller --onedir -w --icon="icon.ico" main.py
+```
+
 
 <br>
 
