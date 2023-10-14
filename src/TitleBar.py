@@ -24,13 +24,6 @@ class CustomTitleBar(MSFluentTitleBar):
         self.forwardButton = TransparentToolButton(FIF.RIGHT_ARROW.icon(color=color), self)
         self.backButton = TransparentToolButton(FIF.LEFT_ARROW.icon(color=color), self)
 
-        # self.openButton = TransparentToolButton(QIcon("resource/open.png"), self)
-        # self.openButton.clicked.connect(parent.open_document)
-        # self.newButton = TransparentToolButton(QIcon("resource/new.png"), self)
-        # self.newButton.clicked.connect(parent.onTabAddRequested)
-        # self.saveButton = TransparentToolButton(QIcon("resource/save.png"), self)
-        # self.saveButton.clicked.connect(parent.save_document)
-
         self.forwardButton.setDisabled(True)
         self.toolButtonLayout.setContentsMargins(20, 0, 20, 0)
         self.toolButtonLayout.setSpacing(15)
@@ -38,10 +31,8 @@ class CustomTitleBar(MSFluentTitleBar):
         self.toolButtonLayout.addWidget(self.backButton)
         self.toolButtonLayout.addWidget(self.forwardButton)
 
-        # self.toolButtonLayout.addWidget(self.openButton)
         self.hBoxLayout.insertLayout(4, self.toolButtonLayout)
 
-        # add tab bar
         self.tabBar = TabBar(self)
 
         self.tabBar.setMovable(True)
@@ -91,6 +82,11 @@ class CustomTitleBar(MSFluentTitleBar):
         edit_menu.addAction(paste_action)
         self.menu.addMenu(edit_menu)
 
+        selection_menu = RoundMenu("Selection", self)
+        tts_action = Action(text="TTS", icon=FIF.SPEAKERS.icon(QColor("white")))
+        tts_action.triggered.connect(lambda: parent.tts())
+        selection_menu.addAction(tts_action)
+        self.menu.addMenu(selection_menu)
 
         # Create the menuButton
         # self.menuButton = TransparentToolButton(FIF.MENU, self)

@@ -4,29 +4,61 @@ The main python file. Run this file to use the app. Also, for googletrans, use t
 
 """
 
-
-import sys
-from PySide6.QtWidgets import *
-from PySide6.QtCore import *
 import os
-from PySide6.QtGui import *
-from qfluentwidgets import FluentIcon as FIF
-from qfluentwidgets import *
-from qframelesswindow import *
+import threading
 from tkinter import filedialog, messagebox
+
+import pyttsx3
+from PySide6.QtCore import *
+from PySide6.QtGui import *
+from PySide6.QtWidgets import *
+from qfluentwidgets import *
+from qfluentwidgets import FluentIcon as FIF
+from qframelesswindow import *
+
 from TextWidget import TWidget
 from TitleBar import CustomTitleBar
 
-class Widget(QWidget):
-    def __init__(self, text: str, parent=None):
-        super().__init__(parent=parent)
-        self.label = SubtitleLabel(text, self)
-        self.hBoxLayout = QHBoxLayout(self)
 
-        setFont(self.label, 24)
-        self.label.setAlignment(Qt.AlignCenter)
-        self.hBoxLayout.addWidget(self.label, 1, Qt.AlignCenter)
-        self.setObjectName(text.replace(' ', '-'))
+class MarkdownPreview(QWidget):
+    def __init__(self, objectName):
+        super().__init__(parent=None)
+
+        self.setObjectName(objectName)
+
+        # Create a vertical splitter
+        splitter = QSplitter(self)
+        layout = QVBoxLayout(self)
+        layout.addWidget(splitter)
+
+        stylesheet = "QTextEdit{background-color : #272727; color : white; border : 0; font-size: 16}"
+
+        # Left half: Markdown editor
+        markdown_editor = QWidget(self)
+        markdown_layout = QVBoxLayout(markdown_editor)
+        self.txt = QTextEdit(self)
+        self.txt.textChanged.connect(self.updateMarkdownPreview)
+        self.txt.setStyleSheet(stylesheet)
+        markdown_layout.addWidget(self.txt)
+        splitter.addWidget(markdown_editor)
+
+        # Right half: Preview
+        preview = QWidget(self)
+        preview_layout = QVBoxLayout(preview)
+        self.preview_txt = QTextEdit(self)
+        self.preview_txt.setStyleSheet(stylesheet)
+        preview_layout.addWidget(self.preview_txt)
+        splitter.addWidget(preview)
+
+        # Set the splitter size policy to distribute the space evenly
+        splitter.setSizes([self.width() // 2, self.width() // 2])
+
+        # Set the splitter handle width (optional)
+        splitter.setHandleWidth(1)
+
+    def updateMarkdownPreview(self):
+        txt = self.txt.toPlainText()
+        self.preview_txt.setMarkdown(txt)
 
 class TabInterface(QFrame):
     """ Tab interface. Contains the base class to add/remove tabs """
@@ -58,17 +90,20 @@ class Window(MSFluentWindow):
 
         # create sub interface
         self.homeInterface = QStackedWidget(self, objectName='homeInterface')
+        self.markdownInterface = MarkdownPreview(objectName="markdownInterface")
+        self.settingInterface = QWidget(self, objectName="settingsInterface")
+
 
         self.tabBar.addTab(text="Untitled 1", routeKey="Untitled 1")
         self.tabBar.setCurrentTab('Untitled 1')
-
-        #self.current_editor = self.text_widgets["Scratch 1"]
 
         self.initNavigation()
         self.initWindow()
 
     def initNavigation(self):
         self.addSubInterface(self.homeInterface, FIF.EDIT, 'Write', FIF.EDIT)
+        self.addSubInterface(self.markdownInterface, QIcon("resource/markdown.svg"), 'Markdown', QIcon("resource/markdown.svg"))
+        self.addSubInterface(self.settingInterface, FIF.SETTING, 'Settings', FIF.SETTING,  NavigationItemPosition.BOTTOM)
         self.navigationInterface.addItem(
             routeKey='Help',
             icon=FIF.INFO,
@@ -111,7 +146,7 @@ class Window(MSFluentWindow):
         w = MessageBox(
             'ZenNotes 📝',
             (
-                    "Version : 1.0"
+                    "Version : 1.1"
                     + "\n" + "\n" + "\n" + "💝  I hope you'll enjoy using ZenNotes as much as I did while coding it  💝" + "\n" + "\n" + "\n" +
                     "Made with 💖 By Rohan Kishore"
             ),
@@ -186,6 +221,18 @@ class Window(MSFluentWindow):
                     print("File saved successfully.")  # Debug print
         except Exception as e:
             print(f"An error occurred while saving the document: {e}")
+
+    def tts(self):
+        cursor = self.current_editor.textCursor()
+        text = cursor.selectedText()
+
+        def thread_tts():
+            engine = pyttsx3.init()
+            engine.say(text)
+            engine.runAndWait()
+
+        thread1 = threading.Thread(target=thread_tts)
+        thread1.start()
 
 
     def addTab(self, routeKey, text, icon):

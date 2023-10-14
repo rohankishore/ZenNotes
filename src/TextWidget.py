@@ -8,8 +8,6 @@ from googletrans import Translator
 translator = Translator()
 
 
-
-
 class TWidget(QTextEdit):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
