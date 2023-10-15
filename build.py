@@ -5,13 +5,13 @@ import os
 def run_pyinstaller():
     try:
         # Replace 'your_script.py' with the name of your main Python script
-        main_script = 'main.py'
+        main_script = 'ZenNotes.py'
 
         # PyInstaller command to build the executable
         cmd = [
             'pyinstaller',
             main_script,
-            '--onefile',  # Create a single executable file
+            '--onedir',  # Create a single executable file
             '-w', # Makes it windowed
             '--icon="icon.ico"'
         ]
