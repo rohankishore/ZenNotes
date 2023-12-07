@@ -2,3 +2,4 @@ PySide6
 PyQt-Fluent-Widgets
 googletrans==4.0.0rc1
 pyttsx3
+aplustools==0.1.4 # Has to be build from source
