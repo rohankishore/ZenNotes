@@ -9,18 +9,15 @@ import threading
 from tkinter import filedialog, messagebox
 
 import pyttsx3
-from PySide6.QtCore import Qt, QStandardPaths, QTimer, QUrl
-from PySide6.QtGui import QShortcut, QKeySequence, QIcon, QDesktopServices, QTextCursor, QTextCharFormat
-from PySide6.QtWidgets import (QDialog, QFrame, QWidget, QSplitter, QVBoxLayout, QTextEdit, QComboBox, 
-                               QDialogButtonBox, QStackedWidget, QInputDialog, QApplication)
+from PySide6.QtCore import *
+from PySide6.QtGui import *
+from PySide6.QtWidgets import *
 from qfluentwidgets import *
 from qfluentwidgets import FluentIcon as FIF
 from qframelesswindow import *
 
 from TextWidget import TWidget
 from TitleBar import CustomTitleBar
-
-from aplustools.io.environment import System
 
 class MarkdownPreview(QWidget):
     def __init__(self, objectName):
@@ -90,34 +87,7 @@ class TabInterface(QFrame):
 
         self.setObjectName(objectName)
 
-class QDropdownDialog(QDialog):
-    def __init__(self, title: str, items: list, std_item): # std_item has to be in items
-        super().__init__()
-        
-        self.setWindowTitle(title)
-        
-        # Layout
-        self.layout = QVBoxLayout()
-        self.setLayout(self.layout)
-        
-        # Dropdown (Combobox)
-        self.comboBox = QComboBox(self)
-        self.comboBox.addItems(items)
-        self.comboBox.setCurrentText(std_item)
-        self.layout.addWidget(self.comboBox)
-        
-        # Ok and cancel buttons
-        self.buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.cancel, self)
-        
-        # Connect signals
-        self.buttons.accepted.connect(self.accepted)
-        self.buttons.rejected.connect(self.rejected)
-        
-        self.layout.addWidget(self.buttons)
-        
-    def get_selected_value(self):
-        return self.comboBox.currentText()
-        
+
 class Window(MSFluentWindow):
     """ Main window class. Uses MSFLuentWindow to imitate the Windows 11 FLuent Design windows. """
 
@@ -148,14 +118,6 @@ class Window(MSFluentWindow):
 
         self.initNavigation()
         self.initWindow()
-        
-        self.theme = ""
-        self.system = System()
-        self.update_theme()
-        
-        self.timer = QTimer()
-        self.timer.start(500) # Increase this for better performance
-        self.timer.timeout.connect(self.timer_tick)
 
     def initNavigation(self):
         self.addSubInterface(self.homeInterface, FIF.EDIT, 'Write', FIF.EDIT, NavigationItemPosition.TOP)
@@ -166,13 +128,6 @@ class Window(MSFluentWindow):
             icon=FIF.INFO,
             text='About',
             onClick=self.showMessageBox,
-            selectable=False,
-            position=NavigationItemPosition.BOTTOM)
-        self.navigationInterface.addItem(
-            routeKey='Change Theme',
-            icon=FIF.BRIGHTNESS,
-            text='Change Theme',
-            onClick=self.force_update_theme,
             selectable=False,
             position=NavigationItemPosition.BOTTOM)
 
@@ -237,12 +192,14 @@ class Window(MSFluentWindow):
             # Update the current TWidget
             self.current_editor = self.text_widgets[current_tab.objectName()]
 
+
     def onTabAddRequested(self):
         text = f'Untitled {self.tabBar.count() + 1}'
         self.addTab(text, text, '')
 
         # Set the current_editor to the newly added TWidget
         self.current_editor = self.text_widgets[text]
+
 
     def open_document(self):
         file_dir = filedialog.askopenfilename(
@@ -270,6 +227,7 @@ class Window(MSFluentWindow):
                     ),
                     self
                 )
+
 
     def closeEvent(self, event):
         a = self.current_editor.toPlainText()
@@ -331,6 +289,7 @@ class Window(MSFluentWindow):
         if ok and word_to_find:
             find_word(word_to_find)
 
+
     def save_document(self):
         try:
             if not self.current_editor:
@@ -390,6 +349,7 @@ class Window(MSFluentWindow):
         # Ensure the target line is visible
         self.current_editor.ensureCursorVisible()
 
+
     def addTab(self, routeKey, text, icon):
         self.tabBar.addTab(routeKey, text, icon)
         self.homeInterface.addWidget(TabInterface(text, icon, routeKey, self))
@@ -400,28 +360,8 @@ class Window(MSFluentWindow):
         tab_interface.vBoxLayout.addWidget(t_widget)
         self.current_editor = t_widget# Add TWidget to the corresponding TabInterface
 
-    def force_update_theme(self):
-        dialog = QDropdownDialog("Change Theme", ["Light", "Dark"], "Dark")
-        
-        if dialog.exec() == QDialog.Accepted: # Maybe save it too?
-            self.update_theme(forced_theme=dialog.get_selected_value().lower())
-
-    def update_theme(self, forced_theme=None):
-        current_theme = forced_theme or self.system.get_system_theme().lower()
-        if self.theme == current_theme:
-            return
-        if current_theme == "light":
-            setTheme(Theme.LIGHT)
-        else:
-            setTheme(Theme.DARK)
-
-    def timer_tick(self):
-        self.update_theme()
-        # Other things like complex resizing logic
-
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
+    app = QApplication()
     w = Window()
     w.show()
-    sys.exit(app.exec())
-    
+    app.exec()
