@@ -12,9 +12,9 @@
 ## ✍️ What is ZenNotes?
 ZenNotes is a minimalistic Notepad app with a sleek design inspired by [Fluent Design](https://fluent2.microsoft.design/). It offers the familiar look of the Windows Notepad while having much more powerful features like Translate, TTS, etc.
 
-![image](https://github.com/rohankishore/ZenNotes/assets/109947257/53ffc260-051a-4690-bf23-10572d95ec2c)
+![image](https://github.com/rohankishore/ZenNotes/assets/109947257/b572d23a-aa08-4a79-ab78-d19f340d9dc5)
 
-https://github.com/rohankishore/ZenNotes/assets/109947257/e8a7d44d-6a83-4c38-a4c3-e270d590f891
+![image](https://github.com/rohankishore/ZenNotes/assets/109947257/27a67e79-fa6a-4de3-991d-767cc9c71ca1)
 
 <br>
 
@@ -24,7 +24,8 @@ https://github.com/rohankishore/ZenNotes/assets/109947257/e8a7d44d-6a83-4c38-a4c
 - Windows Fluent Design with Mica support
 - Built-in Translation
 - Text to Speech
-- Markdown support (BETA)
+- Encrypt and Decrypt
+- Markdown support (Note: Even the BR and HR tag may require closing tags)
 
 <br>
 
