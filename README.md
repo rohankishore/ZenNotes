@@ -7,6 +7,9 @@
   <a href="https://opensource.org/">![Language](https://img.shields.io/badge/Open-Source-blue)</a>
   <a href="https://github.com/rohankishore/ZenNotes/releases">![Demo](https://img.shields.io/badge/Download-Now-indigo)</a>
   <a href="https://www.fiverr.com/rohancodespy/">![Demo](https://img.shields.io/badge/Fiverr-Hire-green)</a>
+    <a style="text-decoration:none">
+    <img src="https://img.shields.io/github/downloads/rohankishore/ZenNotes/total.svg"/>
+  </a>
 </div>
 
 ## ✍️ What is ZenNotes?
