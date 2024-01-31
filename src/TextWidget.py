@@ -1,4 +1,6 @@
 # coding:utf-8
+import base64
+
 from PySide6.QtGui import QFont, QAction, QIcon
 from PySide6.QtWidgets import *
 from qfluentwidgets import FluentIcon as FIF
@@ -53,8 +55,7 @@ class TWidget(QTextEdit):
         menu.addAction(copy_action)
         menu.addAction(cut_action)
 
-
-        # add sub menu
+        # add sub menu for translate
         translation_submenu = RoundMenu("Translate", self)
         translation_submenu.setIcon(QIcon("resource/translate.png"))
 
@@ -66,6 +67,34 @@ class TWidget(QTextEdit):
 
         translation_submenu.addAction(translate_selection_action)
         translation_submenu.addAction(translate_full_action)
+
+
+        # add sub menu for encryption
+        # add sub menu
+        encrypt_submenu = RoundMenu("Encryption", self)
+        encrypt_submenu.setIcon(QIcon("resource/encrypt.png"))
+
+        encrypt = RoundMenu('Encrypt', self)
+        encrypt.setIcon(QIcon("resource/encrypt.png"))
+
+        e_selection = Action(FIF.CLEAR_SELECTION, 'Selection')
+        e_selection.triggered.connect(lambda: self.encrypt_selection())
+        e_fd = Action(FIF.DOCUMENT, 'Full Document')
+        e_fd.triggered.connect(lambda: self.encrypt_document())
+        encrypt.addAction(e_selection)
+        encrypt.addAction(e_fd)
+
+        decrypt = RoundMenu('Decrypt', self)
+        decrypt.setIcon(QIcon("resource/decrypt.png"))
+        d_selection = Action(FIF.CLEAR_SELECTION, 'Selection')
+        d_selection.triggered.connect(lambda: self.decode_selection())
+        d_fd = Action(FIF.DOCUMENT, 'Full Document')
+        d_fd.triggered.connect(lambda: self.decode_document())
+        decrypt.addAction(d_selection)
+        decrypt.addAction(d_fd)
+
+        encrypt_submenu.addMenu(encrypt)
+        encrypt_submenu.addMenu(decrypt)
 
         # submenu.addActions([
         #    QAction('Video'),
@@ -83,10 +112,10 @@ class TWidget(QTextEdit):
         menu.addSeparator()
 
         menu.addMenu(translation_submenu)
+        menu.addMenu(encrypt_submenu)
 
         # show menu
         menu.exec(e.globalPos(), aniType=MenuAnimationType.FADE_IN_PULL_UP)
-
 
     def translate_selection(self):
         cursor = self.textCursor()
@@ -99,7 +128,7 @@ class TWidget(QTextEdit):
         w = MessageBox(
             'Is this good?',
             ("'" + a + "'" + "\n" + "\n" + "\n" + "Should I insert this to the editor?"
-            ),
+             ),
             self
         )
         w.yesButton.setText('Yeah')
@@ -107,7 +136,6 @@ class TWidget(QTextEdit):
 
         if w.exec():
             self.textCursor().insertText(a)
-
 
     def translate_document(self):
         text = self.toPlainText()
@@ -127,4 +155,38 @@ class TWidget(QTextEdit):
         if w.exec():
             self.setPlainText(a)
 
+    def encrypt_selection(self):
+        cursor = self.textCursor()
+        start = cursor.selectionStart()
+        end = cursor.selectionEnd()
+        sample_string = cursor.selectedText()
+        if sample_string != "":
+            sample_string_bytes = sample_string.encode("ascii")
+            base64_bytes = base64.b64encode(sample_string_bytes)
+            base64_encoded = base64_bytes.decode("ascii") + "   "
+            self.textCursor().insertText(base64_encoded)
 
+    def encrypt_document(self):
+        text = self.toPlainText()
+        if text != "":
+            sample_string_bytes = text.encode("ascii")
+            base64_bytes = base64.b64encode(sample_string_bytes)
+            base64_encoded = base64_bytes.decode("ascii") + "   "
+            self.setPlainText(base64_encoded)
+
+    def decode_selection(self):
+        cursor = self.textCursor()
+        base64_string = cursor.selectedText()
+        if base64_string != "":
+            base64_bytes = base64_string.encode("ascii")
+            sample_string_bytes = base64.b64decode(base64_bytes)
+            sample_string = sample_string_bytes.decode("ascii") + "   "
+            self.textCursor().insertText(sample_string)
+
+    def decode_document(self):
+        text = self.toPlainText()
+        if text != "":
+            base64_bytes = text.encode("ascii")
+            sample_string_bytes = base64.b64decode(base64_bytes)
+            sample_string = sample_string_bytes.decode("ascii") + "   "
+            self.setPlainText(sample_string)

@@ -3,6 +3,7 @@ The main python file. Run this file to use the app. Also, for googletrans, use t
 ` pip install googletrans==4.0.0rc1 ` since the newer versions doesnt work well with PyCharm.
 
 """
+import base64
 import datetime
 import os
 import threading
@@ -153,6 +154,7 @@ class Window(MSFluentWindow):
     def dateTime(self):
         cdate = str(datetime.datetime.now())
         self.current_editor.append(cdate)
+
 
     def showMessageBox(self):
         w = MessageBox(
