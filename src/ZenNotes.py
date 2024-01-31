@@ -19,6 +19,7 @@ from qframelesswindow import *
 from TextWidget import TWidget
 from TitleBar import CustomTitleBar
 
+
 class MarkdownPreview(QWidget):
     def __init__(self, objectName):
         super().__init__(parent=None)
@@ -45,6 +46,7 @@ class MarkdownPreview(QWidget):
         preview = QWidget(self)
         preview_layout = QVBoxLayout(preview)
         self.preview_txt = QTextEdit(self)
+        self.preview_txt.setReadOnly(True)
         self.preview_txt.setStyleSheet(stylesheet)
         preview_layout.addWidget(self.preview_txt)
         splitter.addWidget(preview)
@@ -59,19 +61,6 @@ class MarkdownPreview(QWidget):
         txt = self.txt.toPlainText()
         self.preview_txt.setMarkdown(txt)
 
-class Settings(QWidget):
-    def __init__(self):
-        super().__init__(parent=None)
-
-        # music folders
-        self.musicInThisPCGroup = SettingCardGroup(
-            self.tr("Music on this PC"))
-        self.musicFolderCard = FolderListSettingCard(
-            cfg.musicFolders,
-            self.tr("Local music library"),
-            directory=QStandardPaths.writableLocation(QStandardPaths.MusicLocation),
-            parent=self.musicInThisPCGroup
-        )
 
 class TabInterface(QFrame):
     """ Tab interface. Contains the base class to add/remove tabs """
@@ -92,7 +81,7 @@ class Window(MSFluentWindow):
     """ Main window class. Uses MSFLuentWindow to imitate the Windows 11 FLuent Design windows. """
 
     def __init__(self):
-        #self.isMicaEnabled = False
+        # self.isMicaEnabled = False
         super().__init__()
         self.setTitleBar(CustomTitleBar(self))
         self.tabBar = self.titleBar.tabBar  # type: TabBar
@@ -110,8 +99,8 @@ class Window(MSFluentWindow):
         # create sub interface
         self.homeInterface = QStackedWidget(self, objectName='homeInterface')
         self.markdownInterface = MarkdownPreview(objectName="markdownInterface")
-        #self.settingInterface = Settings()
-        #self.settingInterface.setObjectName("markdownInterface")
+        # self.settingInterface = Settings()
+        # self.settingInterface.setObjectName("markdownInterface")
 
         self.tabBar.addTab(text="Untitled 1", routeKey="Untitled 1")
         self.tabBar.setCurrentTab('Untitled 1')
@@ -121,8 +110,9 @@ class Window(MSFluentWindow):
 
     def initNavigation(self):
         self.addSubInterface(self.homeInterface, FIF.EDIT, 'Write', FIF.EDIT, NavigationItemPosition.TOP)
-        self.addSubInterface(self.markdownInterface, QIcon("resource/markdown.svg"), 'Markdown', QIcon("resource/markdown.svg"))
-        #self.addSubInterface(self.settingInterface, FIF.SETTING, 'Settings', FIF.SETTING,  NavigationItemPosition.BOTTOM)
+        self.addSubInterface(self.markdownInterface, QIcon("resource/markdown.svg"), 'Markdown',
+                             QIcon("resource/markdown.svg"))
+        # self.addSubInterface(self.settingInterface, FIF.SETTING, 'Settings', FIF.SETTING,  NavigationItemPosition.BOTTOM)
         self.navigationInterface.addItem(
             routeKey='Help',
             icon=FIF.INFO,
@@ -158,7 +148,7 @@ class Window(MSFluentWindow):
         self.setWindowTitle('ZenNotes')
 
         w, h = 1200, 800
-        self.move(w//2 - self.width()//2, h//2 - self.height()//2)
+        self.move(w // 2 - self.width() // 2, h // 2 - self.height() // 2)
 
     def dateTime(self):
         cdate = str(datetime.datetime.now())
@@ -192,14 +182,12 @@ class Window(MSFluentWindow):
             # Update the current TWidget
             self.current_editor = self.text_widgets[current_tab.objectName()]
 
-
     def onTabAddRequested(self):
         text = f'Untitled {self.tabBar.count() + 1}'
         self.addTab(text, text, '')
 
         # Set the current_editor to the newly added TWidget
         self.current_editor = self.text_widgets[text]
-
 
     def open_document(self):
         file_dir = filedialog.askopenfilename(
@@ -228,7 +216,6 @@ class Window(MSFluentWindow):
                     self
                 )
 
-
     def closeEvent(self, event):
         a = self.current_editor.toPlainText()
 
@@ -237,8 +224,8 @@ class Window(MSFluentWindow):
             w = MessageBox(
                 'Confirm Exit',
                 (
-                "Do you want to save your 'magnum opus' before exiting? " +
-                "Or would you like to bid adieu to your unsaved masterpiece?"
+                        "Do you want to save your 'magnum opus' before exiting? " +
+                        "Or would you like to bid adieu to your unsaved masterpiece?"
                 ),
                 self
             )
@@ -248,7 +235,7 @@ class Window(MSFluentWindow):
             if w.exec():
                 self.save_document()
         else:
-            event.accept() # Close the application
+            event.accept()  # Close the application
 
     def find_first(self):
         def find_word(word):
@@ -288,7 +275,6 @@ class Window(MSFluentWindow):
 
         if ok and word_to_find:
             find_word(word_to_find)
-
 
     def save_document(self):
         try:
@@ -330,14 +316,12 @@ class Window(MSFluentWindow):
 
     def go_to_line(self):
 
-
-        line_number, ok =QInputDialog.getInt(
+        line_number, ok = QInputDialog.getInt(
             self,
             "Go to Line",
             "Enter line number:",
             value=1,
         )
-
 
         cursor = self.current_editor.textCursor()
         cursor.movePosition(QTextCursor.Start)
@@ -349,7 +333,6 @@ class Window(MSFluentWindow):
         # Ensure the target line is visible
         self.current_editor.ensureCursorVisible()
 
-
     def addTab(self, routeKey, text, icon):
         self.tabBar.addTab(routeKey, text, icon)
         self.homeInterface.addWidget(TabInterface(text, icon, routeKey, self))
@@ -358,7 +341,8 @@ class Window(MSFluentWindow):
         self.text_widgets[routeKey] = t_widget  # Store the TWidget instance in the dictionary
         tab_interface = self.findChild(TabInterface, routeKey)
         tab_interface.vBoxLayout.addWidget(t_widget)
-        self.current_editor = t_widget# Add TWidget to the corresponding TabInterface
+        self.current_editor = t_widget  # Add TWidget to the corresponding TabInterface
+
 
 if __name__ == '__main__':
     app = QApplication()

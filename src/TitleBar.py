@@ -1,12 +1,9 @@
 import sys
 from PySide6.QtWidgets import QHBoxLayout
 from PySide6.QtCore import *
-import os
-from PySide6.QtGui import QColor, QAction
+from PySide6.QtGui import QIcon
 from qfluentwidgets import FluentIcon as FIF
 from qfluentwidgets import *
-from qframelesswindow import *
-from tkinter import filedialog, messagebox
 from TextWidget import TWidget
 
 
