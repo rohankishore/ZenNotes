@@ -4,7 +4,6 @@
 <div align="center">
   
   <a href="https://opensource.org/licenses/MIT">![License](https://img.shields.io/badge/License-MIT-yellow)</a>
-  <a href="https://opensource.org/">![Language](https://img.shields.io/badge/Open-Source-blue)</a>
   <a href="https://github.com/rohankishore/ZenNotes/releases">![Demo](https://img.shields.io/badge/Download-Now-indigo)</a>
   <a href="https://www.fiverr.com/rohancodespy/">![Demo](https://img.shields.io/badge/Fiverr-Hire-green)</a>
     <a style="text-decoration:none">
