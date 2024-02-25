@@ -1,7 +1,7 @@
 import sys
 from PySide6.QtWidgets import QHBoxLayout
 from PySide6.QtCore import *
-from PySide6.QtGui import QIcon
+#from PyQt6.QtGui import QIcon
 from qfluentwidgets import FluentIcon as FIF
 from qfluentwidgets import *
 from TextWidget import TWidget
