@@ -11,7 +11,7 @@
   </a>
 </div>
 
-## ✍️ What is ZenNotes?
+## ✍️ What is ZenNotes? 
 ZenNotes is a minimalistic Notepad app with a sleek design inspired by [Fluent Design](https://fluent2.microsoft.design/). It offers the familiar look of the Windows Notepad while having much more powerful features like Translate, TTS, etc.
 
 ![image](https://github.com/rohankishore/ZenNotes/assets/109947257/542f9d8a-8e02-4bfd-a469-f91e9873f60a)
