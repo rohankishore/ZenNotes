@@ -1,11 +1,11 @@
 # coding:utf-8
 import base64
-
+import wikipedia
 from PySide6.QtGui import QFont, QAction, QIcon
 from PySide6.QtWidgets import *
+from googletrans import Translator
 from qfluentwidgets import FluentIcon as FIF
 from qfluentwidgets import RoundMenu, Action, MenuAnimationType, MessageBox
-from googletrans import Translator
 
 translator = Translator()
 
@@ -68,9 +68,6 @@ class TWidget(QTextEdit):
         translation_submenu.addAction(translate_selection_action)
         translation_submenu.addAction(translate_full_action)
 
-
-        # add sub menu for encryption
-        # add sub menu
         encrypt_submenu = RoundMenu("Encryption", self)
         encrypt_submenu.setIcon(QIcon("resource/encrypt.png"))
 
@@ -114,8 +111,41 @@ class TWidget(QTextEdit):
         menu.addMenu(translation_submenu)
         menu.addMenu(encrypt_submenu)
 
-        # show menu
+        menu.addSeparator()
+
+        wiki_action = Action(QIcon("resource/wikipedia.png"), "Get Summary from Wikipedia")
+        wiki_action.triggered.connect(self.wiki_get)
+        menu.addAction(wiki_action)
+
         menu.exec(e.globalPos(), aniType=MenuAnimationType.FADE_IN_PULL_UP)
+
+    def wiki_get(self):
+        cursor = self.textCursor()
+        query = cursor.selectedText()
+        try:
+            result = wikipedia.summary(query, sentences=4, auto_suggest=False)
+            w = MessageBox(
+                'Is this good?',
+                ("'" + result + "'" + "\n" + "\n" + "\n" + "Should I insert this to the editor?"
+                 ),
+                self
+            )
+            w.yesButton.setText('Yeah')
+            w.cancelButton.setText('Nah Nevermind')
+
+            if w.exec():
+                self.append(result)
+        except Exception as e:
+            w = MessageBox(
+                'ERROR',
+                "Unexpected Error Occured. Can't access Wikipedia right now!",
+                self
+            )
+            w.yesButton.setText('Hmmm OK!')
+            w.cancelButton.setText('Try again')
+
+            if w.exec():
+                pass
 
     def translate_selection(self):
         cursor = self.textCursor()
