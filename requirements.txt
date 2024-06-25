@@ -1,4 +1,5 @@
 PySide6
-PyQt-Fluent-Widgets
+PySide6-Fluent-Widgets
 googletrans==4.0.0rc1
 pyttsx3
+wikipedia==1.4.0
