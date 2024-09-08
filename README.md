@@ -9,6 +9,9 @@
     <a style="text-decoration:none">
     <img src="https://img.shields.io/github/downloads/rohankishore/ZenNotes/total.svg"/>
   </a>
+
+*_ZenNotes is being ported to macOS by @matthewyang204. Check the repo [here](https://github.com/matthewyang204/ZenNotes-Mac-Binaries)_*
+  
 </div>
 
 ## ✍️ What is ZenNotes? 
