@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "ZenNotes"
-#define MyAppVersion "1.1"
+#define MyAppVersion "1.4.0"
 #define MyAppPublisher "Rohan Kishore"
 #define MyAppURL "https://github.com/rohankishore/ZenNotes"
 #define MyAppExeName "main.exe"
