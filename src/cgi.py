@@ -54,7 +54,7 @@ __all__ = ["MiniFieldStorage", "FieldStorage", "parse", "parse_multipart",
            "print_environ_usage"]
 
 
-warnings._deprecated(__name__, remove=(3,13))
+# warnings._deprecated(__name__, remove=(3,13))
 
 # Logging support
 # ===============
@@ -86,8 +86,8 @@ def initlog(*allargs):
 
     """
     global log, logfile, logfp
-    warnings.warn("cgi.log() is deprecated as of 3.10. Use logging instead",
-                  DeprecationWarning, stacklevel=2)
+    # warnings.warn("cgi.log() is deprecated as of 3.10. Use logging instead",
+    #               DeprecationWarning, stacklevel=2)
     if logfile and not logfp:
         try:
             logfp = open(logfile, "a", encoding="locale")
