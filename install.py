@@ -50,5 +50,7 @@ if platform.system() == "Windows":
     raise platformError("We have detected that you are using Windows. Please use the Inno Setup script instead.")
 elif platform.system() == "Linux":
     linux.install()
+elif platform.system() == "Darwin":
+    raise platformError("We have detected that you are using macOS. Please just use the build script to build the program, and then copy the app bundle from dist.")
 else:
     raise platformError("Unsupported platform detected. There is no installer for this platform.")
