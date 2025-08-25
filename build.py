@@ -4,7 +4,7 @@ import os
 import shutil
 
 def copy_icon():
-    shutil.copy('icon.ico', 'dist/main/icon.ico'
+    shutil.copy('icon.ico', 'dist/main/icon.ico')
 
 def run_pyinstaller():
     try:
