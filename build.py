@@ -1,7 +1,10 @@
 import subprocess
 import sys
 import os
+import shutil
 
+def copy_icon():
+    shutil.copy('icon.ico', 'dist/main/icon.ico'
 
 def run_pyinstaller():
     try:
@@ -22,6 +25,8 @@ def run_pyinstaller():
         print("Build successful.")
     except Exception as e:
         print(f"Build failed: {e}")
+    
+    copy_icon()
 
 
 if __name__ == '__main__':
