@@ -8,7 +8,7 @@ class linux:
     def install():
         import os
 
-        if os.path.isdir("dist"):
+        if os.path.isdir("dist") and not os.path.exists("dist/main/main.exe"):
             print("Found existing build, proceeding to install it...")
         else:
             print("ERROR: No build found")
