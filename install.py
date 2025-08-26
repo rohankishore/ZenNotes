@@ -12,6 +12,7 @@ class linux:
             print("Found existing build, proceeding to install it...")
         else:
             print("ERROR: No build found")
+            os.system('rm -rf build dist *.spec')
             print("Building first...")
             import build
             build.run_pyinstaller()
