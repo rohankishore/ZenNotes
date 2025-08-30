@@ -16,7 +16,6 @@ def run_pyinstaller():
             cmd = [
             'pyinstaller',
             main_script,
-            '--onedir',  # Create a single folder
             '-w',  # Makes it windowed
             '--name "ZenNotes"',
             '--icon=icon.ico'
@@ -42,3 +41,4 @@ def run_pyinstaller():
 
 if __name__ == '__main__':
     run_pyinstaller()
+
