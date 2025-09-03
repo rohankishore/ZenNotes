@@ -35,11 +35,13 @@ def run_pyinstaller():
         print("Build successful.")
     except Exception as e:
         print(f"Build failed: {e}")
-    
-    copy_icon()
+
+    if platform.system() != 'Darwin':
+        copy_icon()
 
 
 if __name__ == '__main__':
     run_pyinstaller()
+
 
 
