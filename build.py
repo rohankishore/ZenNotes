@@ -17,7 +17,7 @@ def run_pyinstaller():
             'pyinstaller',
             main_script,
             '-w',  # Makes it windowed
-            '--name "ZenNotes"',
+            '--name', 'ZenNotes',
             '--icon=icon.ico'
         ]
         else:
@@ -41,4 +41,5 @@ def run_pyinstaller():
 
 if __name__ == '__main__':
     run_pyinstaller()
+
 
