@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=ZenNotes
+Exec=@INSTALLDIR@/main %f
+Icon=@INSTALLDIR@/icon.ico
+Type=Application
+Terminal=false
+MimeType=text/plain;
+Categories=Application;Utility;TextEditor;
+Keywords=Text;Editor;Plaintext;Write;
