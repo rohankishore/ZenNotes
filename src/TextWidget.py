@@ -1,7 +1,7 @@
 # coding:utf-8
 import base64
 import wikipedia
-from PySide6.QtGui import QFont, QAction, QIcon
+from PySide6.QtGui import QFont, QAction, QIcon, Qt
 from PySide6.QtWidgets import *
 from googletrans import Translator
 from qfluentwidgets import FluentIcon as FIF
@@ -13,9 +13,44 @@ translator = Translator()
 class TWidget(QTextEdit):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
+
+        # Create the main container layout
+        container = QWidget(self)
+        main_layout = QVBoxLayout(container)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+
+        # Add the text editor
+        self.text_editor = QTextEdit(self)
+        self.text_editor.setFont(QFont("Consolas", 14))
+        self.text_editor.setAcceptRichText(False)
+        self.text_editor.setStyleSheet("QTextEdit{background-color : #272727; color : white; border: 0;}")
+        self.text_editor.textChanged.connect(self.update_word_stats)
+        main_layout.addWidget(self.text_editor)
+
+        # Add the stats label at the bottom-right
+        stats_layout = QHBoxLayout()
+        stats_layout.addStretch()  # Push the label to the right
+        self.word_stats_label = QLabel("Words: 0 | Characters: 0", self)
+        self.word_stats_label.setStyleSheet("color: white;")
+        stats_layout.addWidget(self.word_stats_label)
+        main_layout.addLayout(stats_layout)
+
+        # Set the container layout
+        container.setLayout(main_layout)
+        self.setLayout(main_layout)
+
+        self.textChanged.connect(self.update_word_stats)
+
+
         self.setFont(QFont("Consolas", 14))
         self.setAcceptRichText(False)
         self.setStyleSheet("QTextEdit{background-color : #272727; color : white; border: 0;}")
+
+    def update_word_stats(self):
+        text = self.toPlainText()
+        words = len(text.split())
+        characters = len(text)
+        self.word_stats_label.setText(f"Words: {words} | Characters: {characters}")
 
     def contextMenuEvent(self, e):
         menu = RoundMenu(parent=self)

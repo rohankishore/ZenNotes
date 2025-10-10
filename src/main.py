@@ -95,6 +95,33 @@ class MarkdownPreview(QWidget):
             with open(file_path, 'w') as file:
                 file.write(self.preview_txt.toHtml())
 
+
+class Settings(QWidget):
+    def __init__(self, markdown_preview, main_editor_widgets, parent=None):
+        super().__init__(parent)
+        self.markdown_preview = markdown_preview
+        self.main_editor_widgets = main_editor_widgets
+
+        layout = QVBoxLayout(self)
+
+        self.markdown_stats_checkbox = QCheckBox("Enable Word Stats for Markdown")
+        self.markdown_stats_checkbox.setChecked(True)
+        self.markdown_stats_checkbox.stateChanged.connect(self.toggle_markdown_stats)
+        layout.addWidget(self.markdown_stats_checkbox)
+
+        self.main_editor_stats_checkbox = QCheckBox("Enable Word Stats for Main Editor")
+        self.main_editor_stats_checkbox.setChecked(True)
+        self.main_editor_stats_checkbox.stateChanged.connect(self.toggle_main_editor_stats)
+        layout.addWidget(self.main_editor_stats_checkbox)
+
+    def toggle_markdown_stats(self, state):
+        self.markdown_preview.word_stats_label.setVisible(state == Qt.Checked)
+
+    def toggle_main_editor_stats(self, state):
+        for editor in self.main_editor_widgets.values():
+            editor.word_stats_label.setVisible(state == Qt.Checked)
+
+
 class TabInterface(QFrame):
     """ Tab interface. Contains the base class to add/remove tabs """
 
@@ -129,12 +156,14 @@ class Window(MSFluentWindow):
         self.save_shortcut.activated.connect(self.save_document)
         self.open_shortcut.activated.connect(self.open_document)
 
+        self.text_widgets = {}  # Create a dictionary to store TWidget instances for each tab
+
+
         # create sub interface
         self.homeInterface = QStackedWidget(self, objectName='homeInterface')
         self.markdownInterface = MarkdownPreview(objectName="markdownInterface")
-        # self.settingInterface = Settings()
-        # self.settingInterface.setObjectName("markdownInterface")
-
+        self.settingsInterface = Settings(self.markdownInterface, self.text_widgets)
+        self.settingsInterface.setObjectName("settingsInterface")
         self.tabBar.addTab(text="Untitled 1", routeKey="Untitled 1")
         self.tabBar.setCurrentTab('Untitled 1')
 
@@ -143,8 +172,9 @@ class Window(MSFluentWindow):
 
     def initNavigation(self):
         self.addSubInterface(self.homeInterface, FIF.EDIT, 'Write', FIF.EDIT, NavigationItemPosition.TOP)
-        self.addSubInterface(self.markdownInterface,QIcon("resource/markdown.png"), 'Markdown',
+        self.addSubInterface(self.markdownInterface, QIcon("resource/markdown.png"), 'Markdown',
                              QIcon("resource/markdown.png"))
+        self.addSubInterface(self.settingsInterface, FIF.SETTING, 'Settings', FIF.SETTING, NavigationItemPosition.BOTTOM)
         # self.addSubInterface(self.settingInterface, FIF.SETTING, 'Settings', FIF.SETTING,  NavigationItemPosition.BOTTOM)
         self.navigationInterface.addItem(
             routeKey='Help',
@@ -186,7 +216,6 @@ class Window(MSFluentWindow):
     def dateTime(self):
         cdate = str(datetime.datetime.now())
         self.current_editor.append(cdate)
-
 
     def showMessageBox(self):
         w = MessageBox(
