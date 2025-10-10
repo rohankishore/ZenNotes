@@ -156,12 +156,14 @@ class Window(MSFluentWindow):
         self.save_shortcut.activated.connect(self.save_document)
         self.open_shortcut.activated.connect(self.open_document)
 
+        self.text_widgets = {}  # Create a dictionary to store TWidget instances for each tab
+
+
         # create sub interface
         self.homeInterface = QStackedWidget(self, objectName='homeInterface')
         self.markdownInterface = MarkdownPreview(objectName="markdownInterface")
-        # self.settingInterface = Settings()
-        # self.settingInterface.setObjectName("markdownInterface")
-
+        self.settingsInterface = Settings(self.markdownInterface, self.text_widgets)
+        self.settingsInterface.setObjectName("settingsInterface")
         self.tabBar.addTab(text="Untitled 1", routeKey="Untitled 1")
         self.tabBar.setCurrentTab('Untitled 1')
 
@@ -172,6 +174,7 @@ class Window(MSFluentWindow):
         self.addSubInterface(self.homeInterface, FIF.EDIT, 'Write', FIF.EDIT, NavigationItemPosition.TOP)
         self.addSubInterface(self.markdownInterface, QIcon("resource/markdown.png"), 'Markdown',
                              QIcon("resource/markdown.png"))
+        self.addSubInterface(self.settingsInterface, FIF.SETTING, 'Settings', FIF.SETTING, NavigationItemPosition.BOTTOM)
         # self.addSubInterface(self.settingInterface, FIF.SETTING, 'Settings', FIF.SETTING,  NavigationItemPosition.BOTTOM)
         self.navigationInterface.addItem(
             routeKey='Help',
