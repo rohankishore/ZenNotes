@@ -1,7 +1,7 @@
 # coding:utf-8
 import base64
 import wikipedia
-from PySide6.QtGui import QFont, QAction, QIcon
+from PySide6.QtGui import QFont, QAction, QIcon, Qt
 from PySide6.QtWidgets import *
 from googletrans import Translator
 from qfluentwidgets import FluentIcon as FIF
@@ -13,9 +13,28 @@ translator = Translator()
 class TWidget(QTextEdit):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
+
+        self.word_stats_label = QLabel("Words: 0 | Characters: 0", self)
+        self.word_stats_label.setStyleSheet("color: white;")
+        self.word_stats_label.setAlignment(Qt.AlignmentFlag.AlignRight)
+        self.word_stats_label.setFixedHeight(20)
+
+
+        layout = QVBoxLayout(self)
+        layout.addWidget(self.word_stats_label)
+        layout.addWidget(self)
+
+        self.textChanged.connect(self.update_word_stats)
+
         self.setFont(QFont("Consolas", 14))
         self.setAcceptRichText(False)
         self.setStyleSheet("QTextEdit{background-color : #272727; color : white; border: 0;}")
+
+    def update_word_stats(self):
+        text = self.toPlainText()
+        words = len(text.split())
+        characters = len(text)
+        self.word_stats_label.setText(f"Words: {words} | Characters: {characters}")
 
     def contextMenuEvent(self, e):
         menu = RoundMenu(parent=self)
