@@ -41,6 +41,7 @@ class TWidget(QTextEdit):
 
         self.textChanged.connect(self.update_word_stats)
 
+
         self.setFont(QFont("Consolas", 14))
         self.setAcceptRichText(False)
         self.setStyleSheet("QTextEdit{background-color : #272727; color : white; border: 0;}")
