@@ -58,10 +58,42 @@ class MarkdownPreview(QWidget):
         # Set the splitter handle width (optional)
         splitter.setHandleWidth(1)
 
+        # Add a stats and export section below the editor
+        stats_export_layout = QHBoxLayout()
+        self.word_stats_label = QLabel("Words: 0 | Characters: 0")
+        self.word_stats_label.setStyleSheet("color: white;")
+        stats_export_layout.addWidget(self.word_stats_label)
+
+        export_txt_button = QPushButton("Export to TXT")
+        export_txt_button.clicked.connect(self.export_to_txt)
+        stats_export_layout.addWidget(export_txt_button)
+
+        export_html_button = QPushButton("Export to HTML")
+        export_html_button.clicked.connect(self.export_to_html)
+        stats_export_layout.addWidget(export_html_button)
+
+        layout.addLayout(stats_export_layout)
+
     def updateMarkdownPreview(self):
         txt = self.txt.toPlainText()
         self.preview_txt.setMarkdown(txt)
 
+        # Update word and character stats
+        words = len(txt.split())
+        characters = len(txt)
+        self.word_stats_label.setText(f"Words: {words} | Characters: {characters}")
+
+    def export_to_txt(self):
+        file_path, _ = QFileDialog.getSaveFileName(self, "Export to TXT", "", "Text Files (*.txt)")
+        if file_path:
+            with open(file_path, 'w') as file:
+                file.write(self.txt.toPlainText())
+
+    def export_to_html(self):
+        file_path, _ = QFileDialog.getSaveFileName(self, "Export to HTML", "", "HTML Files (*.html)")
+        if file_path:
+            with open(file_path, 'w') as file:
+                file.write(self.preview_txt.toHtml())
 
 class TabInterface(QFrame):
     """ Tab interface. Contains the base class to add/remove tabs """
