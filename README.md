@@ -39,7 +39,7 @@ ZenNotes is a minimalistic Notepad app with a sleek design inspired by [Fluent D
 Let's get ZenNotes set up on your PC!
 
 ### Prerequisites
-- Windows 10 x64 or later
+- Windows 10 x64 or later, a Linux distro running kernel 6.x or later, or macOS 11+
 - Python 3.9 or later
 - Python installation is bootstrapped with pip
 - (Recommended) A fresh venv created with `python -m venv venv` and activated with `venv\Scripts\activate`
