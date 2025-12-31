@@ -15,10 +15,11 @@ def run_pyinstaller():
         if platform.system() == 'Darwin':
             cmd = [
             'pyinstaller',
-            main_script,
-            '-w',  # Makes it windowed
-            '--name', 'ZenNotes',
-            '--icon=icon.ico'
+            'darwinBuild.spec'
+            # main_script,
+            # '-w',  # Makes it windowed
+            # '--name', 'ZenNotes',
+            # '--icon=icon.ico'
         ]
         else:
             cmd = [
