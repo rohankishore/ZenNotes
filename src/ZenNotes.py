@@ -251,11 +251,11 @@ class Window(MSFluentWindow):
             "",
             "All Files (*);;Text Files (*.txt);;Markdown Files (*.md)"
         )
-        filename = os.path.basename(file_dir).split('/')[-1]
+        filename = os.path.basename(file_path).split('/')[-1]
 
-        if file_dir:
+        if file_path:
             try:
-                with open(file_dir, "r") as f:
+                with open(file_path, "r") as f:
                     filedata = f.read()
                     self.addTab(filename, filename, '')
                     self.current_editor.setPlainText(filedata)
