@@ -287,8 +287,11 @@ class Window(MSFluentWindow):
             text_to_save = self.current_editor.toPlainText()
             print("Text to save:", text_to_save)  # Debug print
 
-            name = filedialog.asksaveasfilename(
-                title="Save Your Document"
+            name, fileExt = QFileDialog.getSaveFileName(
+                self,
+                "Save File",
+                "",
+                "Text Files (*.txt);;Markdown Files (*.md);;All Files (*)"
             )
 
             print("File path to save:", name)  # Debug print
