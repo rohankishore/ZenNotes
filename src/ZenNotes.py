@@ -173,23 +173,28 @@ class Window(MSFluentWindow):
             QDesktopServices.openUrl(QUrl("https://github.com/rohankishore/"))
 
     def onTabChanged(self, index: int):
-        objectName = self.tabBar.currentTab().routeKey()
-        self.homeInterface.setCurrentWidget(self.findChild(TabInterface, objectName))
+        routeKey = self.tabBar.currentTab().routeKey()
+        self.homeInterface.setCurrentWidget(
+            self.findChild(TabInterface, routeKey)
+        )
         self.stackedWidget.setCurrentWidget(self.homeInterface)
-
-        # Get the currently active tab
-        current_tab = self.homeInterface.widget(index)
-
-        if current_tab and isinstance(current_tab, TabInterface):
-            # Update the current TWidget
-            self.current_editor = self.text_widgets[current_tab.objectName()]
+        self.current_editor = self.text_widgets.get(routeKey)
+        print(f"Switched to tab: {routeKey}")
+        print(f"Current editor set to: {self.current_editor}")
 
     def onTabAddRequested(self):
-        text = f'Untitled {self.tabBar.count() + 1}'
-        self.addTab(text, text, '')
+        base_name = "Untitled"
+        idx = 1
+        # Generate a routeKey not already used
+        while True:
+            routeKey = f"{base_name} {idx}"
+            if routeKey not in self.text_widgets:
+                break
+            idx += 1
+        self.addTab(routeKey, routeKey, '')
 
         # Set the current_editor to the newly added TWidget
-        self.current_editor = self.text_widgets[text]
+        self.current_editor = self.text_widgets[routeKey]
 
     def open_document(self):
         file_dir = filedialog.askopenfilename(
@@ -352,12 +357,12 @@ class Window(MSFluentWindow):
 
     def addTab(self, routeKey, text, icon):
         self.tabBar.addTab(routeKey, text, icon)
-        self.homeInterface.addWidget(TabInterface(text, icon, routeKey, self))
         # Create a new TWidget instance for the new tab
         t_widget = TWidget(self)
         self.text_widgets[routeKey] = t_widget  # Store the TWidget instance in the dictionary
-        tab_interface = self.findChild(TabInterface, routeKey)
+        tab_interface = TabInterface(text, icon, routeKey, self)
         tab_interface.vBoxLayout.addWidget(t_widget)
+        self.homeInterface.addWidget(tab_interface)
         self.current_editor = t_widget  # Add TWidget to the corresponding TabInterface
 
 

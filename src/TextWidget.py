@@ -9,7 +9,6 @@ from qfluentwidgets import RoundMenu, Action, MenuAnimationType, MessageBox
 
 translator = Translator()
 
-
 class TWidget(QTextEdit):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
@@ -255,3 +254,6 @@ class TWidget(QTextEdit):
             sample_string_bytes = base64.b64decode(base64_bytes)
             sample_string = sample_string_bytes.decode("ascii") + "   "
             self.setPlainText(sample_string)
+    
+    def toPlainText(self):
+        return self.text_editor.toPlainText()
