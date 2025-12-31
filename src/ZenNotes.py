@@ -278,6 +278,13 @@ class Window(MSFluentWindow):
         if ok and word_to_find:
             find_word(word_to_find)
 
+    def checkExt(self, name):
+        root, ext = os.path.splitext(name)
+        if ext:
+            return ext
+        else:
+            return False
+    
     def save_document(self):
         try:
             if not self.current_editor:
@@ -295,9 +302,9 @@ class Window(MSFluentWindow):
             )
             print("File path without extension to save:", name)  # Debug print
             if fileExt:
-                if fileExt == "Text Files (*.txt)" and not name.endswith('.txt'):
+                if fileExt == "Text Files (*.txt)" and not self.checkExt(name):
                     name += '.txt'
-                elif fileExt == "Markdown Files (*.md)" and not name.endswith('.md'):
+                elif fileExt == "Markdown Files (*.md)" and not self.checkExt(name):
                     name += '.md'
             print("File path to save:", name)  # Debug print
 
