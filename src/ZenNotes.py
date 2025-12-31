@@ -245,8 +245,11 @@ class Window(MSFluentWindow):
         self.current_editor = self.text_widgets[routeKey]
 
     def open_document(self):
-        file_dir = filedialog.askopenfilename(
-            title="Select file",
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Open File",
+            "",
+            "All Files (*);;Text Files (*.txt);;Markdown Files (*.md)"
         )
         filename = os.path.basename(file_dir).split('/')[-1]
 
