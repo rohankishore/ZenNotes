@@ -20,6 +20,8 @@ from qframelesswindow import *
 from TextWidget import TWidget
 from TitleBar import CustomTitleBar
 
+class NoEditorSpecified(Exception):
+    pass
 
 class MarkdownPreview(QWidget):
     def __init__(self, objectName):
@@ -100,19 +102,35 @@ class Window(MSFluentWindow):
         # create sub interface
         self.homeInterface = QStackedWidget(self, objectName='homeInterface')
         self.markdownInterface = MarkdownPreview(objectName="markdownInterface")
+        self.stackedWidget.addWidget(self.homeInterface)
+        self.stackedWidget.addWidget(self.markdownInterface)
         # self.settingInterface = Settings()
         # self.settingInterface.setObjectName("markdownInterface")
 
         self.tabBar.addTab(text="Untitled 1", routeKey="Untitled 1")
         self.tabBar.setCurrentTab('Untitled 1')
 
+        self.mode = "plaintext" # default a mode
+
         self.initNavigation()
         self.initWindow()
 
     def initNavigation(self):
-        self.addSubInterface(self.homeInterface, FIF.EDIT, 'Write', FIF.EDIT, NavigationItemPosition.TOP)
-        self.addSubInterface(self.markdownInterface, QIcon("src/resource/markdown.svg"), 'Markdown',
-                             QIcon("src/resource/markdown.svg"))
+        self.navigationInterface.addItem(
+            routeKey='Write',
+            icon=FIF.EDIT,
+            text='Write',
+            onClick=self.setModeToWrite,
+            position=NavigationItemPosition.TOP
+        )
+        self.navigationInterface.addItem(
+            routeKey='Markdown',
+            icon=QIcon("src/resource/markdown.svg"),
+            text='Markdown',
+            onClick=self.setModeToMarkdown,
+            position=NavigationItemPosition.TOP
+        )
+
         # self.addSubInterface(self.settingInterface, FIF.SETTING, 'Settings', FIF.SETTING,  NavigationItemPosition.BOTTOM)
         self.navigationInterface.addItem(
             routeKey='Help',
@@ -139,7 +157,8 @@ class Window(MSFluentWindow):
             tab_interface = TabInterface(self.tabBar.tabText(i), 'icon', routeKey, self)
             tab_interface.vBoxLayout.addWidget(t_widget)
             self.homeInterface.addWidget(tab_interface)
-
+        
+        self.text_widgets['Markdown'] = self.markdownInterface.txt # Store markdown editor instance in dictionary
         self.tabBar.currentChanged.connect(self.onTabChanged)
         self.tabBar.tabAddRequested.connect(self.onTabAddRequested)
 
@@ -173,14 +192,36 @@ class Window(MSFluentWindow):
             QDesktopServices.openUrl(QUrl("https://github.com/rohankishore/"))
 
     def onTabChanged(self, index: int):
+        self.text_widgets['Markdown'] = self.markdownInterface.txt # Store markdown editor instance in dictionary
         routeKey = self.tabBar.currentTab().routeKey()
-        self.homeInterface.setCurrentWidget(
-            self.findChild(TabInterface, routeKey)
-        )
-        self.stackedWidget.setCurrentWidget(self.homeInterface)
+        mode = self.mode
+        print("Current routeKey:", routeKey)
+        print("Current mode:", mode)
+        if mode == "markdown":
+            self.homeInterface.setCurrentWidget(self.markdownInterface)
+            self.stackedWidget.setCurrentWidget(self.markdownInterface)
+        else:
+            tab_widget = self.findChild(TabInterface, routeKey)
+            if tab_widget:
+                self.homeInterface.setCurrentWidget(tab_widget)
+                self.stackedWidget.setCurrentWidget(self.homeInterface)
         self.current_editor = self.text_widgets.get(routeKey)
         print(f"Switched to tab: {routeKey}")
         print(f"Current editor set to: {self.current_editor}")
+
+    def onSideTabChanged(self, modeToSet):
+        if modeToSet == "Markdown":
+            self.mode = "markdown"
+        else:
+            self.mode = "plaintext"
+        self.onTabChanged(self.tabBar.currentIndex())
+        print("Mode changed to:", self.mode)
+
+    def setModeToMarkdown(self):
+        self.onSideTabChanged("Markdown")
+    
+    def setModeToWrite(self):
+        self.onSideTabChanged("Write")
 
     def onTabAddRequested(self):
         base_name = "Untitled"
@@ -290,13 +331,25 @@ class Window(MSFluentWindow):
         else:
             return False
     
+    def getEditorType(self):
+        self.onTabChanged(self.tabBar.currentIndex())
+        if self.mode == "markdown":
+            self.current_editor = self.markdownInterface.txt
+        else:
+            routeKey = self.tabBar.tabText(self.tabBar.currentIndex())
+            self.current_editor = self.text_widgets.get(routeKey)
+
     def save_document(self):
         try:
-            if not self.current_editor:
-                print("No active TWidget found.")
-                return  # Check if there is an active TWidget
+        #     if not self.current_editor:
+        #         print("No active TWidget found.")
+        #         return  # Check if there is an active TWidget
+            self.getEditorType()
+            editor = self.current_editor
+            if not editor:
+                raise NoEditorSpecified("No editor specified to save from.")
 
-            text_to_save = self.current_editor.toPlainText()
+            text_to_save = editor.toPlainText()
             print("Text to save:", text_to_save)  # Debug print
 
             name, fileExt = QFileDialog.getSaveFileName(
