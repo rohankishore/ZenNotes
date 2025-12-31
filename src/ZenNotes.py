@@ -352,12 +352,20 @@ class Window(MSFluentWindow):
             text_to_save = editor.toPlainText()
             print("Text to save:", text_to_save)  # Debug print
 
-            name, fileExt = QFileDialog.getSaveFileName(
-                self,
-                "Save File",
-                "",
-                "Text Files (*.txt);;Markdown Files (*.md);;All Files (*)"
-            )
+            if self.mode == "markdown":
+                name, fileExt = QFileDialog.getSaveFileName(
+                    self,
+                    "Save File",
+                    "",
+                    "Markdown Files (*.md);;Text Files (*.txt);;All Files (*)"
+                )
+            else:
+                name, fileExt = QFileDialog.getSaveFileName(
+                    self,
+                    "Save File",
+                    "",
+                    "Text Files (*.txt);;Markdown Files (*.md);;All Files (*)"
+                )
             print("File path without extension to save:", name)  # Debug print
             if fileExt:
                 if fileExt == "Text Files (*.txt)" and not self.checkExt(name):
