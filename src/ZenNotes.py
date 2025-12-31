@@ -251,6 +251,9 @@ class Window(MSFluentWindow):
             "",
             "All Files (*);;Text Files (*.txt);;Markdown Files (*.md)"
         )
+        self.open_file(file_path)
+
+    def open_file(self, file_path):
         filename = os.path.basename(file_path).split('/')[-1]
 
         if file_path:
