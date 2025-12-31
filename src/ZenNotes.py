@@ -115,6 +115,10 @@ class Window(MSFluentWindow):
         self.initNavigation()
         self.initWindow()
 
+        # Select default 'Write' mode
+        self.navigationInterface.setCurrentItem('Write')
+        self.setModeToWrite()
+
     def initNavigation(self):
         self.navigationInterface.addItem(
             routeKey='Write',
