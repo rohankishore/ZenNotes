@@ -309,7 +309,7 @@ class Window(MSFluentWindow):
             print("File path to save:", name)  # Debug print
 
             if name:
-                with open(name, 'w') as file:
+                with open(name, 'w', encoding='utf-8') as file:
                     file.write(text_to_save)
                     title = os.path.basename(name) + " ~ ZenNotes"
                     active_tab_index = self.tabBar.currentIndex()
