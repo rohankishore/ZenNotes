@@ -293,7 +293,12 @@ class Window(MSFluentWindow):
                 "",
                 "Text Files (*.txt);;Markdown Files (*.md);;All Files (*)"
             )
-
+            print("File path without extension to save:", name)  # Debug print
+            if fileExt:
+                if fileExt == "Text Files (*.txt)" and not name.endswith('.txt'):
+                    name += '.txt'
+                elif fileExt == "Markdown Files (*.md)" and not name.endswith('.md'):
+                    name += '.md'
             print("File path to save:", name)  # Debug print
 
             if name:
