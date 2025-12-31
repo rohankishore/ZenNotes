@@ -438,7 +438,8 @@ class Window(MSFluentWindow):
         tab_interface.vBoxLayout.addWidget(t_widget)
         self.homeInterface.addWidget(tab_interface)
         self.current_editor = t_widget  # Add TWidget to the corresponding TabInterface
-
+        self.tabBar.setCurrentTab(routeKey)  # Switch to the newly added tab
+        return t_widget
 
 if __name__ == '__main__':
     app = QApplication()
