@@ -260,13 +260,13 @@ class Window(MSFluentWindow):
             try:
                 with open(file_path, "r") as f:
                     filedata = f.read()
-                    self.addTab(filename, filename, '')
-                    self.current_editor.setPlainText(filedata)
+                    editor = self.addTab(filename, filename, '')
+                    editor.setPlainText(filedata)
 
                     # Check the first line of the text
                     first_line = filedata.split('\n')[0].strip()
                     if first_line == ".LOG":
-                        self.current_editor.append(str(datetime.datetime.now()))
+                        editor.append(str(datetime.datetime.now()))
 
             except UnicodeDecodeError:
                 MessageBox(
