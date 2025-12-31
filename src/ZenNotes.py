@@ -86,6 +86,9 @@ class Window(MSFluentWindow):
     def __init__(self):
         # self.isMicaEnabled = False
         super().__init__()
+
+        self.scriptDir = os.path.dirname(os.path.abspath(__file__))
+
         self.setTitleBar(CustomTitleBar(self))
         self.tabBar = self.titleBar.tabBar  # type: TabBar
 
@@ -129,7 +132,7 @@ class Window(MSFluentWindow):
         )
         self.navigationInterface.addItem(
             routeKey='Markdown',
-            icon=QIcon("src/resource/markdown.svg"),
+            icon=QIcon(os.path.join(self.scriptDir, "resource", "markdown.svg")),
             text='Markdown',
             onClick=self.setModeToMarkdown,
             position=NavigationItemPosition.TOP
