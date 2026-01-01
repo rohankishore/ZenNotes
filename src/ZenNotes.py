@@ -494,8 +494,11 @@ class Window(MSFluentWindow):
         self.tabBar.setCurrentTab(routeKey)  # Switch to the newly added tab
         return t_widget
 
-if __name__ == '__main__':
+def main():
     app = QApplication()
     w = Window()
     w.show()
     app.exec()
+
+if __name__ == '__main__':
+    main()

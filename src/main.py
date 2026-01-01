@@ -1,1 +1,3 @@
-ZenNotes.py
+import ZenNotes
+
+ZenNotes.main()
