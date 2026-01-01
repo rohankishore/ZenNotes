@@ -6,6 +6,7 @@ import datetime
 import os
 import threading
 from tkinter import filedialog, messagebox
+import sys
 
 import pyttsx3
 from PySide6.QtCore import *
@@ -496,6 +497,11 @@ def main():
     app = QApplication()
     w = Window()
     w.show()
+
+    if len(sys.argv) > 1:
+        file_to_open = sys.argv[1]
+        w.open_file(file_to_open)
+
     app.exec()
 
 if __name__ == '__main__':
