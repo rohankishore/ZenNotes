@@ -1,6 +1,5 @@
 """
 The main python file. Run this file to use the app.
-
 """
 import base64
 import datetime
