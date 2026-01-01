@@ -1,6 +1,5 @@
 """
-The main python file. Run this file to use the app. Also, for googletrans, use the command:
-` pip install googletrans==4.0.0rc1 ` since the newer versions doesnt work well with PyCharm.
+The main python file. Run this file to use the app.
 
 """
 import base64
