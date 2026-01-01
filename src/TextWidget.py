@@ -257,3 +257,18 @@ class TWidget(QTextEdit):
     
     def toPlainText(self):
         return self.text_editor.toPlainText()
+
+    def setPlainText(self, text: str):
+        self.text_editor.setPlainText(text)
+
+    def append(self, text: str):
+        self.text_editor.append(text)
+
+    def textCursor(self):
+        return self.text_editor.textCursor()
+
+    def setTextCursor(self, cursor):
+        self.text_editor.setTextCursor(cursor)
+
+    def ensureCursorVisible(self):
+        self.text_editor.ensureCursorVisible()
