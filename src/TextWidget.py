@@ -3,6 +3,7 @@ import base64
 import wikipedia
 from PySide6.QtGui import QFont, QAction, QIcon, Qt
 from PySide6.QtWidgets import *
+from PySide6.QtCore import QCoreApplication
 from googletrans import Translator
 from qfluentwidgets import FluentIcon as FIF
 from qfluentwidgets import RoundMenu, Action, MenuAnimationType, MessageBox
@@ -260,6 +261,14 @@ class TWidget(QTextEdit):
 
     def setPlainText(self, text: str):
         self.text_editor.setPlainText(text)
+        # Update stats and force a repaint so text becomes visible immediately
+        try:
+            self.update_word_stats()
+        except Exception:
+            pass
+        self.text_editor.repaint()
+        QCoreApplication.processEvents()
+        self.text_editor.setFocus()
 
     def append(self, text: str):
         self.text_editor.append(text)

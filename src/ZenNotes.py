@@ -205,14 +205,16 @@ class Window(MSFluentWindow):
         print("Current routeKey:", routeKey)
         print("Current mode:", mode)
         if mode == "markdown":
-            self.homeInterface.setCurrentWidget(self.markdownInterface)
             self.stackedWidget.setCurrentWidget(self.markdownInterface)
         else:
             tab_widget = self.findChild(TabInterface, routeKey)
             if tab_widget:
                 self.homeInterface.setCurrentWidget(tab_widget)
                 self.stackedWidget.setCurrentWidget(self.homeInterface)
-        self.current_editor = self.text_widgets.get(routeKey)
+        if mode == "markdown":
+            self.current_editor = self.markdownInterface.txt
+        else:
+            self.current_editor = self.text_widgets.get(routeKey)
         print(f"Switched to tab: {routeKey}")
         print(f"Current editor set to: {self.current_editor}")
 
@@ -251,23 +253,74 @@ class Window(MSFluentWindow):
             "",
             "All Files (*);;Text Files (*.txt);;Markdown Files (*.md)"
         )
-        self.open_file(file_path)
+        if file_path:
+            self.open_file(file_path)
 
     def open_file(self, file_path):
         filename = os.path.basename(file_path).split('/')[-1]
+        _, ext = os.path.splitext(filename)
+        if ext.lower() == '.md':
+            self.setModeToMarkdown()
+        else:
+            self.setModeToWrite()
 
         if file_path:
             try:
-                with open(file_path, "r") as f:
+                with open(file_path, "r", encoding="utf-8") as f:
                     filedata = f.read()
-                    editor = self.addTab(filename, filename, '')
+                    print(f"filedata: {filedata}")
+
+                if self.mode == "markdown":
+                    self.stackedWidget.setCurrentWidget(self.markdownInterface)
+                    QCoreApplication.processEvents()
+                    self.current_editor = self.markdownInterface.txt
+                    editor = self.current_editor
                     editor.setPlainText(filedata)
+                    try:
+                        self.markdownInterface.updateMarkdownPreview()
+                    except Exception:
+                        pass
+                    try:
+                        self.markdownInterface.preview_txt.setMarkdown(filedata)
+                    except Exception:
+                        pass
+                    try:
+                        self.markdownInterface.preview_txt.repaint()
+                        self.markdownInterface.preview_txt.viewport().update()
+                        self.markdownInterface.preview_txt.updateGeometry()
+                    except Exception:
+                        pass
+                    QCoreApplication.processEvents()
+                    try:
+                        editor.setFocus()
+                    except Exception:
+                        pass
+                    self.navigationInterface.blockSignals(True)
+                    self.navigationInterface.setCurrentItem('Markdown')
+                    self.navigationInterface.blockSignals(False)
+                else:
+                    editor = self.addTab(filename, filename, '')
+                    self.current_editor = editor
+                    editor.setPlainText(filedata)
+                    tab_widget = self.findChild(TabInterface, filename)
+                    if tab_widget:
+                        self.homeInterface.setCurrentWidget(tab_widget)
+                    self.stackedWidget.setCurrentWidget(self.homeInterface)
+                    QCoreApplication.processEvents()
+                    try:
+                        editor.setFocus()
+                    except Exception:
+                        pass
+                    self.navigationInterface.blockSignals(True)
+                    self.navigationInterface.setCurrentItem('Write')
+                    self.navigationInterface.blockSignals(False)
 
-                    # Check the first line of the text
-                    first_line = filedata.split('\n')[0].strip()
-                    if first_line == ".LOG":
-                        editor.append(str(datetime.datetime.now()))
 
+                # Check the first line of the text
+                first_line = filedata.split('\n')[0].strip()
+                if first_line == ".LOG":
+                    editor.append(str(datetime.datetime.now()))
+                print("Editor text length:", len(editor.toPlainText()))
             except UnicodeDecodeError:
                 MessageBox(
                     'Wrong Filetype! 📝',
