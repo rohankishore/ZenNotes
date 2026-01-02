@@ -496,8 +496,6 @@ class Window(MSFluentWindow):
 
 def main():
     app = QApplication()
-    w = Window()
-    w.show()
     
     if platform.system() == "Darwin":
         def openEventHandler(event):
@@ -510,7 +508,11 @@ def main():
                 return openEventHandler(event)
             return oldEvent(self, event)
         QApplication.event = newEvent
+        w = Window()
+        w.show()
     else:
+        w = Window()
+        w.show()
         if len(sys.argv) > 1:
             file_to_open = sys.argv[1]
             QTimer.singleShot(0, lambda: w.open_file(file_to_open))
