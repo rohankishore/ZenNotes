@@ -7,6 +7,7 @@ import os
 import threading
 from tkinter import filedialog, messagebox
 import sys
+import platform
 
 import pyttsx3
 from PySide6.QtCore import *
@@ -497,10 +498,22 @@ def main():
     app = QApplication()
     w = Window()
     w.show()
-
-    if len(sys.argv) > 1:
-        file_to_open = sys.argv[1]
-        w.open_file(file_to_open)
+    
+    if platform.system() == "Darwin":
+        def openEventHandler(event):
+            file_to_open = event.file()
+            w.open_file(file_to_open)
+            return True
+        oldEvent = QApplication.event
+        def newEvent(self, event):
+            if event.type() == QEvent.FileOpen:
+                return openEventHandler(event)
+            return oldEvent(self, event)
+        QApplication.event = newEvent
+    else:
+        if len(sys.argv) > 1:
+            file_to_open = sys.argv[1]
+            w.open_file(file_to_open)
 
     app.exec()
 
