@@ -502,7 +502,7 @@ def main():
     if platform.system() == "Darwin":
         def openEventHandler(event):
             file_to_open = event.file()
-            w.open_file(file_to_open)
+            QTimer.singleShot(0, lambda: w.open_file(file_to_open))
             return True
         oldEvent = QApplication.event
         def newEvent(self, event):
@@ -513,7 +513,7 @@ def main():
     else:
         if len(sys.argv) > 1:
             file_to_open = sys.argv[1]
-            w.open_file(file_to_open)
+            QTimer.singleShot(0, lambda: w.open_file(file_to_open))
 
     app.exec()
 
