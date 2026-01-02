@@ -122,6 +122,11 @@ class Window(MSFluentWindow):
         self.navigationInterface.setCurrentItem('Write')
         self.setModeToWrite()
 
+        # Check for no tabs every 100 ms
+        self.tabCheckTimer = QTimer(self)
+        self.tabCheckTimer.timeout.connect(self.checkForNoTabs)
+        self.tabCheckTimer.start(100)
+
     def initNavigation(self):
         self.navigationInterface.addItem(
             routeKey='Write',
@@ -245,6 +250,10 @@ class Window(MSFluentWindow):
 
         # Set the current_editor to the newly added TWidget
         self.current_editor = self.text_widgets[routeKey]
+
+    def checkForNoTabs(self):
+        if self.tabBar.count() == 0:
+            sys.exit()
 
     def open_document(self):
         file_path, _ = QFileDialog.getOpenFileName(
