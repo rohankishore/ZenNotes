@@ -1,13 +1,13 @@
 """
-The main python file. Run this file to use the app. Also, for googletrans, use the command:
-` pip install googletrans==4.0.0rc1 ` since the newer versions doesnt work well with PyCharm.
-
+The main python file. Run this file to use the app.
 """
 import base64
 import datetime
 import os
 import threading
 from tkinter import filedialog, messagebox
+import sys
+import platform
 
 import pyttsx3
 from PySide6.QtCore import *
@@ -20,6 +20,8 @@ from qframelesswindow import *
 from TextWidget import TWidget
 from TitleBar import CustomTitleBar
 
+class NoEditorSpecified(Exception):
+    pass
 
 class MarkdownPreview(QWidget):
     def __init__(self, objectName):
@@ -84,6 +86,9 @@ class Window(MSFluentWindow):
     def __init__(self):
         # self.isMicaEnabled = False
         super().__init__()
+
+        self.scriptDir = os.path.dirname(os.path.abspath(__file__))
+
         self.setTitleBar(CustomTitleBar(self))
         self.tabBar = self.titleBar.tabBar  # type: TabBar
 
@@ -100,19 +105,44 @@ class Window(MSFluentWindow):
         # create sub interface
         self.homeInterface = QStackedWidget(self, objectName='homeInterface')
         self.markdownInterface = MarkdownPreview(objectName="markdownInterface")
+        self.stackedWidget.addWidget(self.homeInterface)
+        self.stackedWidget.addWidget(self.markdownInterface)
         # self.settingInterface = Settings()
         # self.settingInterface.setObjectName("markdownInterface")
 
         self.tabBar.addTab(text="Untitled 1", routeKey="Untitled 1")
         self.tabBar.setCurrentTab('Untitled 1')
 
+        self.mode = "plaintext" # default a mode
+
         self.initNavigation()
         self.initWindow()
 
+        # Select default 'Write' mode
+        self.navigationInterface.setCurrentItem('Write')
+        self.setModeToWrite()
+
+        # Check for no tabs every 100 ms
+        self.tabCheckTimer = QTimer(self)
+        self.tabCheckTimer.timeout.connect(self.checkForNoTabs)
+        self.tabCheckTimer.start(100)
+
     def initNavigation(self):
-        self.addSubInterface(self.homeInterface, FIF.EDIT, 'Write', FIF.EDIT, NavigationItemPosition.TOP)
-        self.addSubInterface(self.markdownInterface, QIcon("src/resource/markdown.svg"), 'Markdown',
-                             QIcon("src/resource/markdown.svg"))
+        self.navigationInterface.addItem(
+            routeKey='Write',
+            icon=FIF.EDIT,
+            text='Write',
+            onClick=self.setModeToWrite,
+            position=NavigationItemPosition.TOP
+        )
+        self.navigationInterface.addItem(
+            routeKey='Markdown',
+            icon=QIcon(os.path.join(self.scriptDir, "resource", "markdown.svg")),
+            text='Markdown',
+            onClick=self.setModeToMarkdown,
+            position=NavigationItemPosition.TOP
+        )
+
         # self.addSubInterface(self.settingInterface, FIF.SETTING, 'Settings', FIF.SETTING,  NavigationItemPosition.BOTTOM)
         self.navigationInterface.addItem(
             routeKey='Help',
@@ -139,7 +169,8 @@ class Window(MSFluentWindow):
             tab_interface = TabInterface(self.tabBar.tabText(i), 'icon', routeKey, self)
             tab_interface.vBoxLayout.addWidget(t_widget)
             self.homeInterface.addWidget(tab_interface)
-
+        
+        self.text_widgets['Markdown'] = self.markdownInterface.txt # Store markdown editor instance in dictionary
         self.tabBar.currentChanged.connect(self.onTabChanged)
         self.tabBar.tabAddRequested.connect(self.onTabAddRequested)
 
@@ -173,42 +204,132 @@ class Window(MSFluentWindow):
             QDesktopServices.openUrl(QUrl("https://github.com/rohankishore/"))
 
     def onTabChanged(self, index: int):
-        objectName = self.tabBar.currentTab().routeKey()
-        self.homeInterface.setCurrentWidget(self.findChild(TabInterface, objectName))
-        self.stackedWidget.setCurrentWidget(self.homeInterface)
+        self.text_widgets['Markdown'] = self.markdownInterface.txt # Store markdown editor instance in dictionary
+        routeKey = self.tabBar.currentTab().routeKey()
+        mode = self.mode
+        print("Current routeKey:", routeKey)
+        print("Current mode:", mode)
+        if mode == "markdown":
+            self.stackedWidget.setCurrentWidget(self.markdownInterface)
+        else:
+            tab_widget = self.findChild(TabInterface, routeKey)
+            if tab_widget:
+                self.homeInterface.setCurrentWidget(tab_widget)
+                self.stackedWidget.setCurrentWidget(self.homeInterface)
+        if mode == "markdown":
+            self.current_editor = self.markdownInterface.txt
+        else:
+            self.current_editor = self.text_widgets.get(routeKey)
+        print(f"Switched to tab: {routeKey}")
+        print(f"Current editor set to: {self.current_editor}")
 
-        # Get the currently active tab
-        current_tab = self.homeInterface.widget(index)
+    def onSideTabChanged(self, modeToSet):
+        if modeToSet == "Markdown":
+            self.mode = "markdown"
+        else:
+            self.mode = "plaintext"
+        self.onTabChanged(self.tabBar.currentIndex())
+        print("Mode changed to:", self.mode)
 
-        if current_tab and isinstance(current_tab, TabInterface):
-            # Update the current TWidget
-            self.current_editor = self.text_widgets[current_tab.objectName()]
+    def setModeToMarkdown(self):
+        self.onSideTabChanged("Markdown")
+    
+    def setModeToWrite(self):
+        self.onSideTabChanged("Write")
 
     def onTabAddRequested(self):
-        text = f'Untitled {self.tabBar.count() + 1}'
-        self.addTab(text, text, '')
+        base_name = "Untitled"
+        idx = 1
+        # Generate a routeKey not already used
+        while True:
+            routeKey = f"{base_name} {idx}"
+            if routeKey not in self.text_widgets:
+                break
+            idx += 1
+        self.addTab(routeKey, routeKey, '')
 
         # Set the current_editor to the newly added TWidget
-        self.current_editor = self.text_widgets[text]
+        self.current_editor = self.text_widgets[routeKey]
+
+    def checkForNoTabs(self):
+        if self.tabBar.count() == 0:
+            sys.exit()
 
     def open_document(self):
-        file_dir = filedialog.askopenfilename(
-            title="Select file",
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Open File",
+            "",
+            "All Files (*);;Text Files (*.txt);;Markdown Files (*.md)"
         )
-        filename = os.path.basename(file_dir).split('/')[-1]
+        if file_path:
+            self.open_file(file_path)
 
-        if file_dir:
+    def open_file(self, file_path):
+        filename = os.path.basename(file_path).split('/')[-1]
+        _, ext = os.path.splitext(filename)
+        if ext.lower() == '.md':
+            self.setModeToMarkdown()
+        else:
+            self.setModeToWrite()
+
+        if file_path:
             try:
-                with open(file_dir, "r") as f:
+                with open(file_path, "r", encoding="utf-8") as f:
                     filedata = f.read()
-                    self.addTab(filename, filename, '')
-                    self.current_editor.setPlainText(filedata)
+                    print(f"filedata: {filedata}")
 
-                    # Check the first line of the text
-                    first_line = filedata.split('\n')[0].strip()
-                    if first_line == ".LOG":
-                        self.current_editor.append(str(datetime.datetime.now()))
+                if self.mode == "markdown":
+                    self.stackedWidget.setCurrentWidget(self.markdownInterface)
+                    QCoreApplication.processEvents()
+                    self.current_editor = self.markdownInterface.txt
+                    editor = self.current_editor
+                    editor.setPlainText(filedata)
+                    try:
+                        self.markdownInterface.updateMarkdownPreview()
+                    except Exception:
+                        pass
+                    try:
+                        self.markdownInterface.preview_txt.setMarkdown(filedata)
+                    except Exception:
+                        pass
+                    try:
+                        self.markdownInterface.preview_txt.repaint()
+                        self.markdownInterface.preview_txt.viewport().update()
+                        self.markdownInterface.preview_txt.updateGeometry()
+                    except Exception:
+                        pass
+                    QCoreApplication.processEvents()
+                    try:
+                        editor.setFocus()
+                    except Exception:
+                        pass
+                    self.navigationInterface.blockSignals(True)
+                    self.navigationInterface.setCurrentItem('Markdown')
+                    self.navigationInterface.blockSignals(False)
+                else:
+                    editor = self.addTab(filename, filename, '')
+                    self.current_editor = editor
+                    editor.setPlainText(filedata)
+                    tab_widget = self.findChild(TabInterface, filename)
+                    if tab_widget:
+                        self.homeInterface.setCurrentWidget(tab_widget)
+                    self.stackedWidget.setCurrentWidget(self.homeInterface)
+                    QCoreApplication.processEvents()
+                    try:
+                        editor.setFocus()
+                    except Exception:
+                        pass
+                    self.navigationInterface.blockSignals(True)
+                    self.navigationInterface.setCurrentItem('Write')
+                    self.navigationInterface.blockSignals(False)
 
+
+                # Check the first line of the text
+                first_line = filedata.split('\n')[0].strip()
+                if first_line == ".LOG":
+                    editor.append(str(datetime.datetime.now()))
+                print("Editor text length:", len(editor.toPlainText()))
             except UnicodeDecodeError:
                 MessageBox(
                     'Wrong Filetype! 📝',
@@ -278,23 +399,58 @@ class Window(MSFluentWindow):
         if ok and word_to_find:
             find_word(word_to_find)
 
+    def checkExt(self, name):
+        root, ext = os.path.splitext(name)
+        if ext:
+            return ext
+        else:
+            return False
+    
+    def getEditorType(self):
+        self.onTabChanged(self.tabBar.currentIndex())
+        if self.mode == "markdown":
+            self.current_editor = self.markdownInterface.txt
+        else:
+            routeKey = self.tabBar.tabText(self.tabBar.currentIndex())
+            self.current_editor = self.text_widgets.get(routeKey)
+
     def save_document(self):
         try:
-            if not self.current_editor:
-                print("No active TWidget found.")
-                return  # Check if there is an active TWidget
+        #     if not self.current_editor:
+        #         print("No active TWidget found.")
+        #         return  # Check if there is an active TWidget
+            self.getEditorType()
+            editor = self.current_editor
+            if not editor:
+                raise NoEditorSpecified("No editor specified to save from.")
 
-            text_to_save = self.current_editor.toPlainText()
+            text_to_save = editor.toPlainText()
             print("Text to save:", text_to_save)  # Debug print
 
-            name = filedialog.asksaveasfilename(
-                title="Save Your Document"
-            )
-
+            if self.mode == "markdown":
+                name, fileExt = QFileDialog.getSaveFileName(
+                    self,
+                    "Save File",
+                    "",
+                    "Markdown Files (*.md);;Text Files (*.txt);;All Files (*)"
+                )
+            else:
+                name, fileExt = QFileDialog.getSaveFileName(
+                    self,
+                    "Save File",
+                    "",
+                    "Text Files (*.txt);;Markdown Files (*.md);;All Files (*)"
+                )
+            print("File path without extension to save:", name)  # Debug print
+            if fileExt:
+                if fileExt == "Text Files (*.txt)" and not self.checkExt(name):
+                    name += '.txt'
+                elif fileExt == "Markdown Files (*.md)" and not self.checkExt(name):
+                    name += '.md'
             print("File path to save:", name)  # Debug print
 
             if name:
-                with open(name, 'w') as file:
+                with open(name, 'w', encoding='utf-8') as file:
                     file.write(text_to_save)
                     title = os.path.basename(name) + " ~ ZenNotes"
                     active_tab_index = self.tabBar.currentIndex()
@@ -337,17 +493,40 @@ class Window(MSFluentWindow):
 
     def addTab(self, routeKey, text, icon):
         self.tabBar.addTab(routeKey, text, icon)
-        self.homeInterface.addWidget(TabInterface(text, icon, routeKey, self))
         # Create a new TWidget instance for the new tab
         t_widget = TWidget(self)
         self.text_widgets[routeKey] = t_widget  # Store the TWidget instance in the dictionary
-        tab_interface = self.findChild(TabInterface, routeKey)
+        tab_interface = TabInterface(text, icon, routeKey, self)
         tab_interface.vBoxLayout.addWidget(t_widget)
+        self.homeInterface.addWidget(tab_interface)
         self.current_editor = t_widget  # Add TWidget to the corresponding TabInterface
+        self.tabBar.setCurrentTab(routeKey)  # Switch to the newly added tab
+        return t_widget
 
+def main():
+    app = QApplication()
+    
+    if platform.system() == "Darwin":
+        def openEventHandler(event):
+            file_to_open = event.file()
+            QTimer.singleShot(0, lambda: w.open_file(file_to_open))
+            return True
+        oldEvent = QApplication.event
+        def newEvent(self, event):
+            if event.type() == QEvent.FileOpen:
+                return openEventHandler(event)
+            return oldEvent(self, event)
+        QApplication.event = newEvent
+        w = Window()
+        w.show()
+    else:
+        w = Window()
+        w.show()
+        if len(sys.argv) > 1:
+            file_to_open = sys.argv[1]
+            QTimer.singleShot(0, lambda: w.open_file(file_to_open))
+
+    app.exec()
 
 if __name__ == '__main__':
-    app = QApplication()
-    w = Window()
-    w.show()
-    app.exec()
+    main()

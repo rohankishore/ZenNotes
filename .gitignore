@@ -31,6 +31,8 @@ MANIFEST
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
+# But we don't want to ignore our darwin build spec file
+!darwinBuild.spec
 
 # Installer logs
 pip-log.txt
@@ -208,3 +210,9 @@ __marimo__/
 
 # Inno Setup
 Output/
+
+# IDE & OS crap
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

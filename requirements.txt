@@ -4,3 +4,5 @@ googletrans==4.0.0rc1
 pyttsx3
 wikipedia==1.4.0
 pyinstaller
+pillow
+wheels/pyqtdarktheme-2.1.0-py3-none-any.whl

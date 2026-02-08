@@ -15,10 +15,11 @@ def run_pyinstaller():
         if platform.system() == 'Darwin':
             cmd = [
             'pyinstaller',
-            main_script,
-            '-w',  # Makes it windowed
-            '--name', 'ZenNotes',
-            '--icon=icon.ico'
+            'darwinBuild.spec'
+            # main_script,
+            # '-w',  # Makes it windowed
+            # '--name', 'ZenNotes',
+            # '--icon=icon.ico'
         ]
         else:
             cmd = [
@@ -26,7 +27,8 @@ def run_pyinstaller():
                 main_script,
                 '--onedir',  # Create a single folder
                 '-w',  # Makes it windowed
-                '--icon=icon.ico'
+                '--icon=icon.ico', 
+                '--add-data', 'src/resource:resource'
             ]
 
         # Run PyInstaller

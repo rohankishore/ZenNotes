@@ -3,12 +3,12 @@ import base64
 import wikipedia
 from PySide6.QtGui import QFont, QAction, QIcon, Qt
 from PySide6.QtWidgets import *
+from PySide6.QtCore import QCoreApplication
 from googletrans import Translator
 from qfluentwidgets import FluentIcon as FIF
 from qfluentwidgets import RoundMenu, Action, MenuAnimationType, MessageBox
 
 translator = Translator()
-
 
 class TWidget(QTextEdit):
     def __init__(self, parent=None):
@@ -255,3 +255,29 @@ class TWidget(QTextEdit):
             sample_string_bytes = base64.b64decode(base64_bytes)
             sample_string = sample_string_bytes.decode("ascii") + "   "
             self.setPlainText(sample_string)
+    
+    def toPlainText(self):
+        return self.text_editor.toPlainText()
+
+    def setPlainText(self, text: str):
+        self.text_editor.setPlainText(text)
+        # Update stats and force a repaint so text becomes visible immediately
+        try:
+            self.update_word_stats()
+        except Exception:
+            pass
+        self.text_editor.repaint()
+        QCoreApplication.processEvents()
+        self.text_editor.setFocus()
+
+    def append(self, text: str):
+        self.text_editor.append(text)
+
+    def textCursor(self):
+        return self.text_editor.textCursor()
+
+    def setTextCursor(self, cursor):
+        self.text_editor.setTextCursor(cursor)
+
+    def ensureCursorVisible(self):
+        self.text_editor.ensureCursorVisible()
