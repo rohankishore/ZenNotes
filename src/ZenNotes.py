@@ -264,6 +264,7 @@ class Window(MSFluentWindow):
         )
         if file_path:
             self.open_file(file_path)
+            self.current_editor.filepath = file_path
 
     def open_file(self, file_path):
         filename = os.path.basename(file_path).split('/')[-1]
@@ -427,26 +428,28 @@ class Window(MSFluentWindow):
             text_to_save = editor.toPlainText()
             print("Text to save:", text_to_save)  # Debug print
 
-            if self.mode == "markdown":
-                name, fileExt = QFileDialog.getSaveFileName(
-                    self,
-                    "Save File",
-                    "",
-                    "Markdown Files (*.md);;Text Files (*.txt);;All Files (*)"
-                )
+            if not editor.filepath:
+                if self.mode == "markdown":
+                    name, fileExt = QFileDialog.getSaveFileName(
+                        self,
+                        "Save File",
+                        "",
+                        "Markdown Files (*.md);;Text Files (*.txt);;All Files (*)"
+                    )
+                else:
+                    name, fileExt = QFileDialog.getSaveFileName(
+                        self,
+                        "Save File",
+                        "",
+                        "Text Files (*.txt);;Markdown Files (*.md);;All Files (*)"
+                    )
+                if fileExt:
+                    if fileExt == "Text Files (*.txt)" and not self.checkExt(name):
+                        name += '.txt'
+                    elif fileExt == "Markdown Files (*.md)" and not self.checkExt(name):
+                        name += '.md'
             else:
-                name, fileExt = QFileDialog.getSaveFileName(
-                    self,
-                    "Save File",
-                    "",
-                    "Text Files (*.txt);;Markdown Files (*.md);;All Files (*)"
-                )
-            print("File path without extension to save:", name)  # Debug print
-            if fileExt:
-                if fileExt == "Text Files (*.txt)" and not self.checkExt(name):
-                    name += '.txt'
-                elif fileExt == "Markdown Files (*.md)" and not self.checkExt(name):
-                    name += '.md'
+                name = editor.filepath
             print("File path to save:", name)  # Debug print
 
             if name:
@@ -454,9 +457,14 @@ class Window(MSFluentWindow):
                     file.write(text_to_save)
                     title = os.path.basename(name) + " ~ ZenNotes"
                     active_tab_index = self.tabBar.currentIndex()
+                    old_routeKey = self.tabBar.currentTab().routeKey()
                     self.tabBar.setTabText(active_tab_index, os.path.basename(name))
                     self.setWindowTitle(title)
                     print("File saved successfully.")  # Debug print
+                    editor.filepath = name
+                    new_routeKey = os.path.basename(name)
+                    if old_routeKey != new_routeKey:
+                        self.text_widgets[new_routeKey] = self.text_widgets.pop(old_routeKey)
         except Exception as e:
             print(f"An error occurred while saving the document: {e}")
 

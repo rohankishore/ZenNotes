@@ -45,6 +45,7 @@ class TWidget(QTextEdit):
         self.setFont(QFont("Consolas", 14))
         self.setAcceptRichText(False)
         self.setStyleSheet("QTextEdit{background-color : #272727; color : white; border: 0;}")
+        self.filepath = None
 
     def update_word_stats(self):
         text = self.toPlainText()
