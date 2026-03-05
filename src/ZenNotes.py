@@ -460,9 +460,9 @@ class Window(MSFluentWindow):
                     old_routeKey = self.tabBar.currentTab().routeKey()
                     self.tabBar.setTabText(active_tab_index, os.path.basename(name))
                     self.setWindowTitle(title)
-                    print("File saved successfully.")  # Debug print
                     editor.filepath = name
                     new_routeKey = os.path.basename(name)
+                    print("File saved successfully.")  # Debug print
                     if old_routeKey != new_routeKey:
                         self.text_widgets[new_routeKey] = self.text_widgets.pop(old_routeKey)
         except Exception as e:
