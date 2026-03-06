@@ -17,7 +17,7 @@ from qfluentwidgets import *
 from qfluentwidgets import FluentIcon as FIF
 from qframelesswindow import *
 
-from TextWidget import TWidget
+from TextWidget import TWidget, get_font_for_platform
 from TitleBar import CustomTitleBar
 
 class NoEditorSpecified(Exception):
@@ -42,6 +42,7 @@ class MarkdownPreview(QWidget):
         self.txt = QTextEdit(self)
         self.txt.textChanged.connect(self.updateMarkdownPreview)
         self.txt.setStyleSheet(stylesheet)
+        self.txt.setFont(get_font_for_platform(16))
         markdown_layout.addWidget(self.txt)
         splitter.addWidget(markdown_editor)
 
@@ -51,6 +52,7 @@ class MarkdownPreview(QWidget):
         self.preview_txt = QTextEdit(self)
         self.preview_txt.setReadOnly(True)
         self.preview_txt.setStyleSheet(stylesheet)
+        self.txt.setFont(get_font_for_platform(16))
         preview_layout.addWidget(self.preview_txt)
         splitter.addWidget(preview)
 
