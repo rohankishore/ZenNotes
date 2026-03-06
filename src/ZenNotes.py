@@ -282,7 +282,7 @@ class Window(MSFluentWindow):
             try:
                 with open(file_path, "r", encoding="utf-8") as f:
                     filedata = f.read()
-                    print(f"filedata: {filedata}")
+                    # print(f"filedata: {filedata}")
 
                 if self.mode == "markdown":
                     self.stackedWidget.setCurrentWidget(self.markdownInterface)
