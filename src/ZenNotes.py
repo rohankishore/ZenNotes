@@ -70,12 +70,10 @@ class TabInterface(QFrame):
 
     def __init__(self, text: str, icon, objectName, parent=None):
         super().__init__(parent=parent)
-        self.iconWidget = IconWidget(icon, self)
-        self.iconWidget.setFixedSize(120, 120)
 
         self.vBoxLayout = QVBoxLayout(self)
-        self.vBoxLayout.setAlignment(Qt.AlignCenter)
-        self.vBoxLayout.setSpacing(30)
+        self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
+        self.vBoxLayout.setSpacing(0)
 
         self.setObjectName(objectName)
 
