@@ -193,7 +193,7 @@ class Window(MSFluentWindow):
         w = MessageBox(
             'ZenNotes 📝',
             (
-                    "Version : 1.4.0"
+                    "Version : 1.5.0"
                     + "\n" + "\n" + "\n" + "💝  I hope you'll enjoy using ZenNotes as much as I did while coding it  💝" + "\n" + "\n" + "\n" +
                     "Made with 💖 By Rohan Kishore"
             ),
@@ -592,7 +592,6 @@ class Window(MSFluentWindow):
         thread1.start()
 
     def go_to_line(self):
-
         line_number, ok = QInputDialog.getInt(
             self,
             "Go to Line",
@@ -624,6 +623,8 @@ class Window(MSFluentWindow):
 
 def main():
     app = QApplication()
+    font = get_font_for_platform()
+    app.setFont(font)
     
     if platform.system() == "Darwin":
         def openEventHandler(event):
