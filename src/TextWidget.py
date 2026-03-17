@@ -7,6 +7,7 @@ from PySide6.QtCore import QCoreApplication
 from googletrans import Translator
 from qfluentwidgets import FluentIcon as FIF
 from qfluentwidgets import RoundMenu, Action, MenuAnimationType, MessageBox
+import platform
 
 translator = Translator()
 
@@ -21,7 +22,7 @@ class TWidget(QTextEdit):
 
         # Add the text editor
         self.text_editor = QTextEdit(self)
-        self.text_editor.setFont(QFont("Consolas", 14))
+        self.text_editor.setFont(get_font_for_platform(14))
         self.text_editor.setAcceptRichText(False)
         self.text_editor.setStyleSheet("QTextEdit{background-color : #272727; color : white; border: 0;}")
         self.text_editor.textChanged.connect(self.update_word_stats)
@@ -42,9 +43,10 @@ class TWidget(QTextEdit):
         self.textChanged.connect(self.update_word_stats)
 
 
-        self.setFont(QFont("Consolas", 14))
+        self.setFont(get_font_for_platform(14))
         self.setAcceptRichText(False)
         self.setStyleSheet("QTextEdit{background-color : #272727; color : white; border: 0;}")
+        self.filepath = None
 
     def update_word_stats(self):
         text = self.toPlainText()
@@ -281,3 +283,12 @@ class TWidget(QTextEdit):
 
     def ensureCursorVisible(self):
         self.text_editor.ensureCursorVisible()
+
+def get_font_for_platform(size=12):
+    system_name = platform.system()
+    if system_name == "Windows":
+        return QFont("Consolas", size)
+    elif system_name == "Darwin":
+        return QFont("Menlo", size)
+    else:
+        return QFont("DejaVu Sans Mono", size)

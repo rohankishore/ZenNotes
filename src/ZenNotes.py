@@ -17,7 +17,7 @@ from qfluentwidgets import *
 from qfluentwidgets import FluentIcon as FIF
 from qframelesswindow import *
 
-from TextWidget import TWidget
+from TextWidget import TWidget, get_font_for_platform
 from TitleBar import CustomTitleBar
 
 class NoEditorSpecified(Exception):
@@ -42,6 +42,7 @@ class MarkdownPreview(QWidget):
         self.txt = QTextEdit(self)
         self.txt.textChanged.connect(self.updateMarkdownPreview)
         self.txt.setStyleSheet(stylesheet)
+        self.txt.setFont(get_font_for_platform(16))
         markdown_layout.addWidget(self.txt)
         splitter.addWidget(markdown_editor)
 
@@ -51,6 +52,7 @@ class MarkdownPreview(QWidget):
         self.preview_txt = QTextEdit(self)
         self.preview_txt.setReadOnly(True)
         self.preview_txt.setStyleSheet(stylesheet)
+        self.txt.setFont(get_font_for_platform(16))
         preview_layout.addWidget(self.preview_txt)
         splitter.addWidget(preview)
 
@@ -70,12 +72,10 @@ class TabInterface(QFrame):
 
     def __init__(self, text: str, icon, objectName, parent=None):
         super().__init__(parent=parent)
-        self.iconWidget = IconWidget(icon, self)
-        self.iconWidget.setFixedSize(120, 120)
 
         self.vBoxLayout = QVBoxLayout(self)
-        self.vBoxLayout.setAlignment(Qt.AlignCenter)
-        self.vBoxLayout.setSpacing(30)
+        self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
+        self.vBoxLayout.setSpacing(0)
 
         self.setObjectName(objectName)
 
@@ -97,10 +97,12 @@ class Window(MSFluentWindow):
         # Create shortcuts for Save and Open
         self.save_shortcut = QShortcut(QKeySequence.StandardKey.Save, self)
         self.open_shortcut = QShortcut(QKeySequence.StandardKey.Open, self)
+        self.saveas_shortcut = QShortcut(QKeySequence.StandardKey.SaveAs, self)
 
         # Connect the shortcuts to functions
         self.save_shortcut.activated.connect(self.save_document)
         self.open_shortcut.activated.connect(self.open_document)
+        self.saveas_shortcut.activated.connect(self.save_document_as)
 
         # create sub interface
         self.homeInterface = QStackedWidget(self, objectName='homeInterface')
@@ -205,22 +207,24 @@ class Window(MSFluentWindow):
 
     def onTabChanged(self, index: int):
         self.text_widgets['Markdown'] = self.markdownInterface.txt # Store markdown editor instance in dictionary
-        routeKey = self.tabBar.currentTab().routeKey()
+        # Use displayed tab text as key, not TabItem.routeKey() which doesn't update on rename
+        tabDisplayName = self.tabBar.tabText(index)
         mode = self.mode
-        print("Current routeKey:", routeKey)
+        print("Current tab name:", tabDisplayName)
         print("Current mode:", mode)
         if mode == "markdown":
             self.stackedWidget.setCurrentWidget(self.markdownInterface)
         else:
-            tab_widget = self.findChild(TabInterface, routeKey)
+            # Find the TabInterface using the displayed tab name as objectName
+            tab_widget = self.findChild(TabInterface, tabDisplayName)
             if tab_widget:
                 self.homeInterface.setCurrentWidget(tab_widget)
                 self.stackedWidget.setCurrentWidget(self.homeInterface)
         if mode == "markdown":
             self.current_editor = self.markdownInterface.txt
         else:
-            self.current_editor = self.text_widgets.get(routeKey)
-        print(f"Switched to tab: {routeKey}")
+            self.current_editor = self.text_widgets.get(tabDisplayName)
+        print(f"Switched to tab: {tabDisplayName}")
         print(f"Current editor set to: {self.current_editor}")
 
     def onSideTabChanged(self, modeToSet):
@@ -264,6 +268,7 @@ class Window(MSFluentWindow):
         )
         if file_path:
             self.open_file(file_path)
+            self.current_editor.filepath = file_path
 
     def open_file(self, file_path):
         filename = os.path.basename(file_path).split('/')[-1]
@@ -277,7 +282,7 @@ class Window(MSFluentWindow):
             try:
                 with open(file_path, "r", encoding="utf-8") as f:
                     filedata = f.read()
-                    print(f"filedata: {filedata}")
+                    # print(f"filedata: {filedata}")
 
                 if self.mode == "markdown":
                     self.stackedWidget.setCurrentWidget(self.markdownInterface)
@@ -340,7 +345,14 @@ class Window(MSFluentWindow):
                 )
 
     def closeEvent(self, event):
-        a = self.current_editor.toPlainText()
+        # Ensure we have a valid editor
+        if not self.current_editor:
+            self.getEditorType()
+        
+        if self.current_editor:
+            a = self.current_editor.toPlainText()
+        else:
+            a = ""
 
         if a != "":
 
@@ -406,57 +418,164 @@ class Window(MSFluentWindow):
         else:
             return False
     
+    def getExtensionFromFilter(self, filter_string):
+        """Extract file extension from QFileDialog filter string."""
+        if not filter_string:
+            return ''
+        # Extract from patterns like "Text Files (*.txt)" -> ".txt"
+        if '*.' in filter_string:
+            start = filter_string.index('*.')
+            end = filter_string.index(')', start)
+            return filter_string[start+1:end]  # Returns ".txt"
+        return ''
+    
     def getEditorType(self):
         self.onTabChanged(self.tabBar.currentIndex())
         if self.mode == "markdown":
             self.current_editor = self.markdownInterface.txt
         else:
-            routeKey = self.tabBar.tabText(self.tabBar.currentIndex())
-            self.current_editor = self.text_widgets.get(routeKey)
+            # Use displayed tab text as key, not TabItem.routeKey()
+            tabDisplayName = self.tabBar.tabText(self.tabBar.currentIndex())
+            self.current_editor = self.text_widgets.get(tabDisplayName)
 
     def save_document(self):
         try:
-        #     if not self.current_editor:
-        #         print("No active TWidget found.")
-        #         return  # Check if there is an active TWidget
             self.getEditorType()
             editor = self.current_editor
             if not editor:
                 raise NoEditorSpecified("No editor specified to save from.")
 
             text_to_save = editor.toPlainText()
-            print("Text to save:", text_to_save)  # Debug print
+            name = ""
 
+            if not editor.filepath:
+                # No filepath set, show save dialog
+                if self.mode == "markdown":
+                    name, fileExt = QFileDialog.getSaveFileName(
+                        self,
+                        "Save File",
+                        "",
+                        "Markdown Files (*.md);;Text Files (*.txt);;All Files (*)"
+                    )
+                else:
+                    name, fileExt = QFileDialog.getSaveFileName(
+                        self,
+                        "Save File",
+                        "",
+                        "Text Files (*.txt);;Markdown Files (*.md);;All Files (*)"
+                    )
+                
+                # User canceled dialog
+                if not name:
+                    return
+                
+                # Add extension if not present
+                if not self.checkExt(name):
+                    ext = self.getExtensionFromFilter(fileExt)
+                    if ext:
+                        name += ext
+                    else:
+                        name += '.txt'  # Default to .txt
+            else:
+                # Use existing filepath
+                name = editor.filepath
+
+            # Write file
+            with open(name, 'w', encoding='utf-8') as file:
+                file.write(text_to_save)
+            
+            # Prepare UI update values
+            title = os.path.basename(name) + " ~ ZenNotes"
+            active_tab_index = self.tabBar.currentIndex()
+            old_displayed_name = self.tabBar.tabText(active_tab_index)
+            new_displayed_name = os.path.basename(name)
+            
+            # Update internal state BEFORE triggering any UI signals
+            # This ensures onTabChanged will find the editor in text_widgets
+            editor.filepath = name
+            
+            # Update text_widgets dictionary if filename changed (before setTabText triggers signal)
+            if old_displayed_name != new_displayed_name:
+                if old_displayed_name in self.text_widgets:
+                    self.text_widgets[new_displayed_name] = self.text_widgets.pop(old_displayed_name)
+                # Update TabInterface's objectName
+                tab_interface = self.findChild(TabInterface, old_displayed_name)
+                if tab_interface:
+                    tab_interface.setObjectName(new_displayed_name)
+            
+            # NOW update UI (this may trigger signals)
+            self.tabBar.setTabText(active_tab_index, new_displayed_name)
+            self.setWindowTitle(title)
+            
+            print(f"File saved successfully to: {name}")
+        except Exception as e:
+            print(f"An error occurred while saving the document: {e}")
+
+    def save_document_as(self):
+        try:
+            self.getEditorType()
+            editor = self.current_editor
+            if not editor:
+                raise NoEditorSpecified("No editor specified to save from.")
+
+            text_to_save = editor.toPlainText()
+
+            # Always show save dialog for "Save As"
             if self.mode == "markdown":
                 name, fileExt = QFileDialog.getSaveFileName(
                     self,
-                    "Save File",
+                    "Save File As",
                     "",
                     "Markdown Files (*.md);;Text Files (*.txt);;All Files (*)"
                 )
             else:
                 name, fileExt = QFileDialog.getSaveFileName(
                     self,
-                    "Save File",
+                    "Save File As",
                     "",
                     "Text Files (*.txt);;Markdown Files (*.md);;All Files (*)"
                 )
-            print("File path without extension to save:", name)  # Debug print
-            if fileExt:
-                if fileExt == "Text Files (*.txt)" and not self.checkExt(name):
-                    name += '.txt'
-                elif fileExt == "Markdown Files (*.md)" and not self.checkExt(name):
-                    name += '.md'
-            print("File path to save:", name)  # Debug print
+            
+            # User canceled dialog
+            if not name:
+                return
+            
+            # Add extension if not present
+            if not self.checkExt(name):
+                ext = self.getExtensionFromFilter(fileExt)
+                if ext:
+                    name += ext
+                else:
+                    name += '.txt'  # Default to .txt
 
-            if name:
-                with open(name, 'w', encoding='utf-8') as file:
-                    file.write(text_to_save)
-                    title = os.path.basename(name) + " ~ ZenNotes"
-                    active_tab_index = self.tabBar.currentIndex()
-                    self.tabBar.setTabText(active_tab_index, os.path.basename(name))
-                    self.setWindowTitle(title)
-                    print("File saved successfully.")  # Debug print
+            # Write file
+            with open(name, 'w', encoding='utf-8') as file:
+                file.write(text_to_save)
+            
+            # Prepare UI update values
+            title = os.path.basename(name) + " ~ ZenNotes"
+            active_tab_index = self.tabBar.currentIndex()
+            old_displayed_name = self.tabBar.tabText(active_tab_index)
+            new_displayed_name = os.path.basename(name)
+            
+            # Update internal state BEFORE triggering any UI signals
+            # This ensures onTabChanged will find the editor in text_widgets
+            editor.filepath = name
+            
+            # Update text_widgets dictionary if filename changed (before setTabText triggers signal)
+            if old_displayed_name != new_displayed_name:
+                if old_displayed_name in self.text_widgets:
+                    self.text_widgets[new_displayed_name] = self.text_widgets.pop(old_displayed_name)
+                # Update TabInterface's objectName
+                tab_interface = self.findChild(TabInterface, old_displayed_name)
+                if tab_interface:
+                    tab_interface.setObjectName(new_displayed_name)
+            
+            # NOW update UI (this may trigger signals)
+            self.tabBar.setTabText(active_tab_index, new_displayed_name)
+            self.setWindowTitle(title)
+            
+            print(f"File saved as: {name}")
         except Exception as e:
             print(f"An error occurred while saving the document: {e}")
 

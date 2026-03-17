@@ -64,6 +64,9 @@ class CustomTitleBar(MSFluentTitleBar):
         save_action = Action(text="Save", icon=FIF.SAVE)
         save_action.triggered.connect(parent.save_document)
         file_menu.addAction(save_action)
+        saveas_action = Action(text="Save As", icon=FIF.SAVE_AS)
+        saveas_action.triggered.connect(parent.save_document_as)
+        file_menu.addAction(saveas_action)
         self.menu.addMenu(file_menu)
 
         edit_menu = RoundMenu("Edit", self)
