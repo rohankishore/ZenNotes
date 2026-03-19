@@ -29,6 +29,10 @@ class MarkdownPreview(QWidget):
 
         self.setObjectName(objectName)
 
+        from qfluentwidgets.common.config import qconfig
+        from qfluentwidgets import isDarkTheme
+        self.isDarkTheme = isDarkTheme
+
         # Create a vertical splitter
         splitter = QSplitter(self)
         layout = QVBoxLayout(self)

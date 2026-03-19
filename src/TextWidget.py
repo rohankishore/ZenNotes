@@ -15,6 +15,10 @@ class TWidget(QTextEdit):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
 
+        from qfluentwidgets.common.config import qconfig
+        from qfluentwidgets import isDarkTheme
+        self.isDarkTheme = isDarkTheme
+
         # Create the main container layout
         container = QWidget(self)
         main_layout = QVBoxLayout(container)
@@ -24,7 +28,6 @@ class TWidget(QTextEdit):
         self.text_editor = QTextEdit(self)
         self.text_editor.setFont(get_font_for_platform(14))
         self.text_editor.setAcceptRichText(False)
-        self.text_editor.setStyleSheet("QTextEdit{background-color : #272727; color : white; border: 0;}")
         self.text_editor.textChanged.connect(self.update_word_stats)
         main_layout.addWidget(self.text_editor)
 
@@ -32,7 +35,6 @@ class TWidget(QTextEdit):
         stats_layout = QHBoxLayout()
         stats_layout.addStretch()  # Push the label to the right
         self.word_stats_label = QLabel("Words: 0 | Characters: 0", self)
-        self.word_stats_label.setStyleSheet("color: white;")
         stats_layout.addWidget(self.word_stats_label)
         main_layout.addLayout(stats_layout)
 
@@ -42,11 +44,23 @@ class TWidget(QTextEdit):
 
         self.textChanged.connect(self.update_word_stats)
 
-
         self.setFont(get_font_for_platform(14))
         self.setAcceptRichText(False)
-        self.setStyleSheet("QTextEdit{background-color : #272727; color : white; border: 0;}")
         self.filepath = None
+        
+        qconfig.themeChanged.connect(self.update_theme)
+        self.update_theme()
+
+    def update_theme(self):
+        if self.isDarkTheme():
+            stylesheet = "QTextEdit{background-color : #272727; color : white; border: 0;}"
+            label_style = "color: white;"
+        else:
+            stylesheet = "QTextEdit{background-color : #FAF9F8; color : black; border: 0;}"
+            label_style = "color: black;"
+        self.text_editor.setStyleSheet(stylesheet)
+        self.word_stats_label.setStyleSheet(label_style)
+        self.setStyleSheet(stylesheet)
 
     def update_word_stats(self):
         text = self.toPlainText()
