@@ -3,6 +3,7 @@ The main python file. Run this file to use the app.
 """
 import base64
 import datetime
+import json
 import os
 import threading
 from tkinter import filedialog, messagebox
@@ -38,14 +39,11 @@ class MarkdownPreview(QWidget):
         layout = QVBoxLayout(self)
         layout.addWidget(splitter)
 
-        stylesheet = "QTextEdit{background-color : #272727; color : white; border : 0; font-size: 16}"
-
         # Left half: Markdown editor
         markdown_editor = QWidget(self)
         markdown_layout = QVBoxLayout(markdown_editor)
         self.txt = QTextEdit(self)
         self.txt.textChanged.connect(self.updateMarkdownPreview)
-        self.txt.setStyleSheet(stylesheet)
         self.txt.setFont(get_font_for_platform(16))
         markdown_layout.addWidget(self.txt)
         splitter.addWidget(markdown_editor)
@@ -55,7 +53,6 @@ class MarkdownPreview(QWidget):
         preview_layout = QVBoxLayout(preview)
         self.preview_txt = QTextEdit(self)
         self.preview_txt.setReadOnly(True)
-        self.preview_txt.setStyleSheet(stylesheet)
         self.txt.setFont(get_font_for_platform(16))
         preview_layout.addWidget(self.preview_txt)
         splitter.addWidget(preview)
@@ -65,6 +62,18 @@ class MarkdownPreview(QWidget):
 
         # Set the splitter handle width (optional)
         splitter.setHandleWidth(1)
+
+        qconfig.themeChanged.connect(self.update_theme)
+        self.update_theme()
+
+    def update_theme(self):
+        if self.isDarkTheme():
+            stylesheet = "QTextEdit{background-color : #272727; color : white; border : 0; font-size: 16}"
+        else:
+            stylesheet = "QTextEdit{background-color : #FAF9F8; color : black; border : 0; font-size: 16}"
+
+        self.txt.setStyleSheet(stylesheet)
+        self.preview_txt.setStyleSheet(stylesheet)
 
     def updateMarkdownPreview(self):
         txt = self.txt.toPlainText()
@@ -92,11 +101,12 @@ class Window(MSFluentWindow):
         super().__init__()
 
         self.scriptDir = os.path.dirname(os.path.abspath(__file__))
+        self.configPath = os.path.join(self.scriptDir, "resource", "data", "config.json")
+
+        self.apply_saved_theme()
 
         self.setTitleBar(CustomTitleBar(self))
         self.tabBar = self.titleBar.tabBar  # type: TabBar
-
-        setTheme(Theme.DARK)
 
         # Create shortcuts for Save and Open
         self.save_shortcut = QShortcut(QKeySequence.StandardKey.Save, self)
@@ -132,6 +142,58 @@ class Window(MSFluentWindow):
         self.tabCheckTimer = QTimer(self)
         self.tabCheckTimer.timeout.connect(self.checkForNoTabs)
         self.tabCheckTimer.start(100)
+
+    def load_config(self):
+        default_config = {"theme": "dark"}
+
+        try:
+            if not os.path.exists(self.configPath):
+                return default_config
+
+            with open(self.configPath, "r", encoding="utf-8") as f:
+                raw = f.read().strip()
+
+            if not raw:
+                return default_config
+
+            config = json.loads(raw)
+            if not isinstance(config, dict):
+                return default_config
+
+            theme = str(config.get("theme", "dark")).lower()
+            if theme not in {"dark", "light"}:
+                theme = "dark"
+            return {"theme": theme}
+        except Exception:
+            return default_config
+
+    def save_config(self, config):
+        os.makedirs(os.path.dirname(self.configPath), exist_ok=True)
+        with open(self.configPath, "w", encoding="utf-8") as f:
+            json.dump(config, f, indent=2)
+
+    def apply_saved_theme(self):
+        config = self.load_config()
+        theme_name = config.get("theme", "dark")
+        if theme_name == "light":
+            setTheme(Theme.LIGHT)
+        else:
+            setTheme(Theme.DARK)
+
+    def set_theme(self, theme_name):
+        normalized_theme = str(theme_name).lower()
+        if normalized_theme == "light":
+            setTheme(Theme.LIGHT)
+            self.save_config({"theme": "light"})
+        else:
+            setTheme(Theme.DARK)
+            self.save_config({"theme": "dark"})
+
+    def set_theme_dark(self):
+        self.set_theme("dark")
+
+    def set_theme_light(self):
+        self.set_theme("light")
 
     def initNavigation(self):
         self.navigationInterface.addItem(

@@ -108,6 +108,15 @@ class CustomTitleBar(MSFluentTitleBar):
         selection_menu.addAction(tts_action)
         self.menu.addMenu(selection_menu)
 
+        view_menu = RoundMenu("View", self)
+        dark_mode_action = Action(text="Dark Mode")
+        dark_mode_action.triggered.connect(parent.set_theme_dark)
+        light_mode_action = Action(text="Light Mode")
+        light_mode_action.triggered.connect(parent.set_theme_light)
+        view_menu.addAction(dark_mode_action)
+        view_menu.addAction(light_mode_action)
+        self.menu.addMenu(view_menu)
+
         # Create the menuButton
         # self.menuButton = TransparentToolButton(FIF.MENU, self)
         self.menuButton.clicked.connect(self.showMenu)
