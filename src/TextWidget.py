@@ -52,7 +52,7 @@ class TWidget(QTextEdit):
         # Add the stats label at the bottom-right
         stats_layout = QHBoxLayout()
         stats_layout.addStretch()  # Push the label to the right
-        self.word_stats_label = QLabel("Line: 0 | Column: 0 | Characters: 0 | Words: 0", self)
+        self.word_stats_label = QLabel("Line: 0 | Column: 0 | Characters: 0 | Words: 0    ", self)
         stats_layout.addWidget(self.word_stats_label)
         main_layout.addLayout(stats_layout)
 
@@ -86,7 +86,7 @@ class TWidget(QTextEdit):
         characters = len(text)
         line = None
         col = None
-        self.word_stats_label.setText(f"Line: {line} | Column: {col} | Characters: {characters} | Words: {words}")
+        self.word_stats_label.setText(f"Line: {line} | Column: {col} | Characters: {characters} | Words: {words}    ")
 
     def contextMenuEvent(self, e):
         menu = RoundMenu(parent=self)
