@@ -8,6 +8,7 @@ from googletrans import Translator
 from qfluentwidgets import FluentIcon as FIF
 from qfluentwidgets import RoundMenu, Action, MenuAnimationType, MessageBox
 import platform
+import os
 
 translator = Translator()
 
