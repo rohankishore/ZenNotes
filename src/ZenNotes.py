@@ -274,7 +274,7 @@ class Window(MSFluentWindow):
         w = MessageBox(
             'ZenNotes 📝',
             (
-                    "Version : 1.5.0"
+                    "Version : 1.5.1"
                     + "\n" + "\n" + "\n" + "💝  I hope you'll enjoy using ZenNotes as much as I did while coding it  💝" + "\n" + "\n" + "\n" +
                     "Made with 💖 By Rohan Kishore"
             ),
