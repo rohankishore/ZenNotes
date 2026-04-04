@@ -1,0 +1,6 @@
+X markdown.svg
+X icon.ico
+translate.png
+wikipedia.png
+decrypt.png
+encrypt.png

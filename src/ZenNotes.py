@@ -221,7 +221,7 @@ class Window(MSFluentWindow):
         )
         self.navigationInterface.addItem(
             routeKey='Markdown',
-            icon=QIcon(os.path.join(self.scriptDir, "resource", "markdown.svg")),
+            icon=QIcon(os.path.join(self.configDirPath, "markdown.svg")),
             text='Markdown',
             onClick=self.setModeToMarkdown,
             position=NavigationItemPosition.TOP
@@ -260,7 +260,7 @@ class Window(MSFluentWindow):
 
     def initWindow(self):
         self.resize(1100, 750)
-        self.setWindowIcon(QIcon('src/resource/icon.ico'))
+        self.setWindowIcon(QIcon(os.path.join(self.configDirPath, "icon.ico")))
         self.setWindowTitle('ZenNotes')
 
         w, h = 1200, 800
