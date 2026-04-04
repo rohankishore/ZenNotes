@@ -323,7 +323,7 @@ def get_font_for_platform(size=12, plain=True):
         else:
             return QFont("Arial", size)
     elif system_name == "Darwin":
-        if plain == True:
+        if plain:
             return QFont("Menlo", size)
         else:
             return QFont("Helvetica", size)
