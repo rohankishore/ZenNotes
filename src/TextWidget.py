@@ -139,7 +139,7 @@ class TWidget(QTextEdit):
         encrypt_submenu.setIcon(QIcon(os.path.join(self.configDirPath, "encrypt.png")))
 
         encrypt = RoundMenu('Encrypt', self)
-        encrypt.setIcon(QIcon(os.path.join(self.configDirPath, "encrypt.png"))
+        encrypt.setIcon(QIcon(os.path.join(self.configDirPath, "encrypt.png")))
 
         e_selection = Action(FIF.CLEAR_SELECTION, 'Selection')
         e_selection.triggered.connect(lambda: self.encrypt_selection())
