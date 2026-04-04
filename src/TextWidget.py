@@ -84,8 +84,11 @@ class TWidget(QTextEdit):
         text = self.toPlainText()
         words = len(text.split())
         characters = len(text)
-        line = None
-        col = None
+
+        cursor = self.textCursor()
+        line = cursor.blockNumber() + 1
+        col = cursor.positionInBlock() + 1
+        
         self.word_stats_label.setText(f"Line: {line} | Column: {col} | Characters: {characters} | Words: {words}    ")
 
     def contextMenuEvent(self, e):
