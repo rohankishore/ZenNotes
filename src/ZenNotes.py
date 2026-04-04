@@ -9,6 +9,7 @@ import threading
 from tkinter import filedialog, messagebox
 import sys
 import platform
+import shutil
 
 import pyttsx3
 from PySide6.QtCore import *
@@ -100,8 +101,23 @@ class Window(MSFluentWindow):
         # self.isMicaEnabled = False
         super().__init__()
 
+        if platform.system() == "Windows":
+            local_app_data = os.getenv('LOCALAPPDATA')
+        elif platform.system() == "Linux":
+            local_app_data = os.path.expanduser("~/.config")
+        elif platform.system() == "Darwin":
+            local_app_data = os.path.expanduser("~/Library/Application Support")
+        else:
+            print("Unsupported operating system")
+            sys.exit(1)
+        self.local_app_data = local_app_data
         self.scriptDir = os.path.dirname(os.path.abspath(__file__))
-        self.configPath = os.path.join(self.scriptDir, "resource", "data", "config.json")
+        self.configSrcPath = os.path.join(self.scriptDir, "resource", "data", "config.json")
+        self.configSrcDirPath = os.path.join(self.scriptDir, "resource")
+        self.configPath = os.path.join(self.local_app_data, "ZenNotes", "data", "config.json")
+        self.configDirPath = os.path.join(self.local_app_data, "ZenNotes")
+        if not os.path.exists(self.configDirPath):
+            shutil.copytree(self.configSrcDirPath, self.configDirPath, dirs_exist_ok=True)
 
         self.apply_saved_theme()
 
