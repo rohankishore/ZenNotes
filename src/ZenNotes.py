@@ -705,7 +705,8 @@ class Window(MSFluentWindow):
 def main():
     app = QApplication()
     font = get_font_for_platform()
-    app.setFont(font)
+    nonPlainFont = get_font_for_platform(plain=False)
+    app.setFont(nonPlainFont)
     
     if platform.system() == "Darwin":
         def openEventHandler(event):
