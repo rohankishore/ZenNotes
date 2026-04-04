@@ -47,6 +47,7 @@ class TWidget(QTextEdit):
         self.text_editor.setFont(get_font_for_platform(14))
         self.text_editor.setAcceptRichText(False)
         self.text_editor.textChanged.connect(self.update_word_stats)
+        self.text_editor.cursorPositionChanged.connect(self.update_word_stats)
         main_layout.addWidget(self.text_editor)
 
         # Add the stats label at the bottom-right
@@ -88,7 +89,7 @@ class TWidget(QTextEdit):
         cursor = self.textCursor()
         line = cursor.blockNumber() + 1
         col = cursor.positionInBlock() + 1
-        
+
         self.word_stats_label.setText(f"Line: {line} | Column: {col} | Characters: {characters} | Words: {words}    ")
 
     def contextMenuEvent(self, e):
