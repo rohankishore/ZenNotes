@@ -6,9 +6,9 @@ import datetime
 import json
 import os
 import threading
-from tkinter import filedialog, messagebox
 import sys
 import platform
+import shutil
 
 import pyttsx3
 from PySide6.QtCore import *
@@ -100,8 +100,23 @@ class Window(MSFluentWindow):
         # self.isMicaEnabled = False
         super().__init__()
 
+        if platform.system() == "Windows":
+            local_app_data = os.getenv('LOCALAPPDATA')
+        elif platform.system() == "Linux":
+            local_app_data = os.path.expanduser("~/.config")
+        elif platform.system() == "Darwin":
+            local_app_data = os.path.expanduser("~/Library/Application Support")
+        else:
+            print("Unsupported operating system")
+            sys.exit(1)
+        self.local_app_data = local_app_data
         self.scriptDir = os.path.dirname(os.path.abspath(__file__))
-        self.configPath = os.path.join(self.scriptDir, "resource", "data", "config.json")
+        self.configSrcPath = os.path.join(self.scriptDir, "resource", "data", "config.json")
+        self.configSrcDirPath = os.path.join(self.scriptDir, "resource")
+        self.configPath = os.path.join(self.local_app_data, "ZenNotes", "data", "config.json")
+        self.configDirPath = os.path.join(self.local_app_data, "ZenNotes")
+        if not os.path.exists(self.configDirPath):
+            shutil.copytree(self.configSrcDirPath, self.configDirPath, dirs_exist_ok=True)
 
         self.apply_saved_theme()
 
@@ -205,7 +220,7 @@ class Window(MSFluentWindow):
         )
         self.navigationInterface.addItem(
             routeKey='Markdown',
-            icon=QIcon(os.path.join(self.scriptDir, "resource", "markdown.svg")),
+            icon=QIcon(os.path.join(self.configDirPath, "markdown.svg")),
             text='Markdown',
             onClick=self.setModeToMarkdown,
             position=NavigationItemPosition.TOP
@@ -244,7 +259,7 @@ class Window(MSFluentWindow):
 
     def initWindow(self):
         self.resize(1100, 750)
-        self.setWindowIcon(QIcon('src/resource/icon.ico'))
+        self.setWindowIcon(QIcon(os.path.join(self.configDirPath, "icon.ico")))
         self.setWindowTitle('ZenNotes')
 
         w, h = 1200, 800
@@ -259,7 +274,7 @@ class Window(MSFluentWindow):
         w = MessageBox(
             'ZenNotes 📝',
             (
-                    "Version : 1.5.0"
+                    "Version : 1.5.1"
                     + "\n" + "\n" + "\n" + "💝  I hope you'll enjoy using ZenNotes as much as I did while coding it  💝" + "\n" + "\n" + "\n" +
                     "Made with 💖 By Rohan Kishore"
             ),
@@ -690,7 +705,8 @@ class Window(MSFluentWindow):
 def main():
     app = QApplication()
     font = get_font_for_platform()
-    app.setFont(font)
+    nonPlainFont = get_font_for_platform(plain=False)
+    app.setFont(nonPlainFont)
     
     if platform.system() == "Darwin":
         def openEventHandler(event):

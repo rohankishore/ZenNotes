@@ -8,12 +8,30 @@ from googletrans import Translator
 from qfluentwidgets import FluentIcon as FIF
 from qfluentwidgets import RoundMenu, Action, MenuAnimationType, MessageBox
 import platform
+import os
+import sys
 
 translator = Translator()
 
 class TWidget(QTextEdit):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
+
+        if platform.system() == "Windows":
+            local_app_data = os.getenv('LOCALAPPDATA')
+        elif platform.system() == "Linux":
+            local_app_data = os.path.expanduser("~/.config")
+        elif platform.system() == "Darwin":
+            local_app_data = os.path.expanduser("~/Library/Application Support")
+        else:
+            print("Unsupported operating system")
+            sys.exit(1)
+        self.local_app_data = local_app_data
+        self.scriptDir = os.path.dirname(os.path.abspath(__file__))
+        self.configSrcPath = os.path.join(self.scriptDir, "resource", "data", "config.json")
+        self.configSrcDirPath = os.path.join(self.scriptDir, "resource")
+        self.configPath = os.path.join(self.local_app_data, "ZenNotes", "data", "config.json")
+        self.configDirPath = os.path.join(self.local_app_data, "ZenNotes")
 
         from qfluentwidgets.common.config import qconfig
         from qfluentwidgets import isDarkTheme
@@ -108,7 +126,7 @@ class TWidget(QTextEdit):
 
         # add sub menu for translate
         translation_submenu = RoundMenu("Translate", self)
-        translation_submenu.setIcon(QIcon("resource/translate.png"))
+        translation_submenu.setIcon(QIcon(os.path.join(self.configDirPath, "translate.png")))
 
         translate_selection_action = Action(FIF.CLEAR_SELECTION, 'Selection')
         translate_selection_action.triggered.connect(lambda: self.translate_selection())
@@ -120,10 +138,10 @@ class TWidget(QTextEdit):
         translation_submenu.addAction(translate_full_action)
 
         encrypt_submenu = RoundMenu("Encryption", self)
-        encrypt_submenu.setIcon(QIcon("resource/encrypt.png"))
+        encrypt_submenu.setIcon(QIcon(os.path.join(self.configDirPath, "encrypt.png")))
 
         encrypt = RoundMenu('Encrypt', self)
-        encrypt.setIcon(QIcon("resource/encrypt.png"))
+        encrypt.setIcon(QIcon(os.path.join(self.configDirPath, "encrypt.png")))
 
         e_selection = Action(FIF.CLEAR_SELECTION, 'Selection')
         e_selection.triggered.connect(lambda: self.encrypt_selection())
@@ -133,7 +151,7 @@ class TWidget(QTextEdit):
         encrypt.addAction(e_fd)
 
         decrypt = RoundMenu('Decrypt', self)
-        decrypt.setIcon(QIcon("resource/decrypt.png"))
+        decrypt.setIcon(QIcon(os.path.join(self.configDirPath, "decrypt.png")))
         d_selection = Action(FIF.CLEAR_SELECTION, 'Selection')
         d_selection.triggered.connect(lambda: self.decode_selection())
         d_fd = Action(FIF.DOCUMENT, 'Full Document')
@@ -164,7 +182,7 @@ class TWidget(QTextEdit):
 
         menu.addSeparator()
 
-        wiki_action = Action(QIcon("resource/wikipedia.png"), "Get Summary from Wikipedia")
+        wiki_action = Action(QIcon(os.path.join(os.path.join(self.configDirPath, "wikipedia.png"))), "Get Summary from Wikipedia")
         wiki_action.triggered.connect(self.wiki_get)
         menu.addAction(wiki_action)
 
@@ -298,11 +316,18 @@ class TWidget(QTextEdit):
     def ensureCursorVisible(self):
         self.text_editor.ensureCursorVisible()
 
-def get_font_for_platform(size=12):
+def get_font_for_platform(size=12, plain=True):
     system_name = platform.system()
     if system_name == "Windows":
-        return QFont("Consolas", size)
+        if plain == True:
+            return QFont("Consolas", size)
+        else:
+            return QFont("Arial", size)
     elif system_name == "Darwin":
-        return QFont("Menlo", size)
+        if plain:
+            return QFont("Menlo", size)
+        else:
+            return QFont("Helvetica", size)
     else:
+        print("WARNING: No non-plain font is available on your platform.")
         return QFont("DejaVu Sans Mono", size)
