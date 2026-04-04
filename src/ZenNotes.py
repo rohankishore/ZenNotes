@@ -6,7 +6,6 @@ import datetime
 import json
 import os
 import threading
-from tkinter import filedialog, messagebox
 import sys
 import platform
 import shutil
