@@ -315,11 +315,18 @@ class TWidget(QTextEdit):
     def ensureCursorVisible(self):
         self.text_editor.ensureCursorVisible()
 
-def get_font_for_platform(size=12):
+def get_font_for_platform(size=12, plain=True):
     system_name = platform.system()
     if system_name == "Windows":
-        return QFont("Consolas", size)
+        if plain == True:
+            return QFont("Consolas", size)
+        else:
+            return QFont("Arial", size)
     elif system_name == "Darwin":
-        return QFont("Menlo", size)
+        if plain == True:
+            return QFont("Menlo", size)
+        else:
+            return QFont("Helvetica", size)
     else:
+        print("WARNING: No non-plain font is available on your platform.")
         return QFont("DejaVu Sans Mono", size)
