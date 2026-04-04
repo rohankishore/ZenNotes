@@ -9,6 +9,7 @@ from qfluentwidgets import FluentIcon as FIF
 from qfluentwidgets import RoundMenu, Action, MenuAnimationType, MessageBox
 import platform
 import os
+import sys
 
 translator = Translator()
 
