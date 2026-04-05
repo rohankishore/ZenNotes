@@ -20,6 +20,7 @@ from qframelesswindow import *
 
 from TextWidget import TWidget, get_font_for_platform
 from TitleBar import CustomTitleBar
+from zencodings import write_file, retrieve_file
 
 class NoEditorSpecified(Exception):
     pass
@@ -119,9 +120,11 @@ class Window(MSFluentWindow):
             shutil.copytree(self.configSrcDirPath, self.configDirPath, dirs_exist_ok=True)
 
         self.apply_saved_theme()
+        self.encoding = 'utf-8' # default encoding
 
         self.setTitleBar(CustomTitleBar(self))
         self.tabBar = self.titleBar.tabBar  # type: TabBar
+        self.encodings = 'utf-8'
 
         # Create shortcuts for Save and Open
         self.save_shortcut = QShortcut(QKeySequence.StandardKey.Save, self)
