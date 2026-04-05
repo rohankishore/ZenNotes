@@ -32,6 +32,7 @@ class TWidget(QTextEdit):
         self.configSrcDirPath = os.path.join(self.scriptDir, "resource")
         self.configPath = os.path.join(self.local_app_data, "ZenNotes", "data", "config.json")
         self.configDirPath = os.path.join(self.local_app_data, "ZenNotes")
+        self.encoding = 'utf-8'
 
         from qfluentwidgets.common.config import qconfig
         from qfluentwidgets import isDarkTheme
@@ -53,7 +54,7 @@ class TWidget(QTextEdit):
         # Add the stats label at the bottom-right
         stats_layout = QHBoxLayout()
         stats_layout.addStretch()  # Push the label to the right
-        self.word_stats_label = QLabel("Line: 0 | Column: 0 | Characters: 0 | Words: 0    ", self)
+        self.word_stats_label = QLabel(f"Line: 0 | Column: 0 | Characters: 0 | Words: 0 | Encodings: {self.encoding}    ", self)
         stats_layout.addWidget(self.word_stats_label)
         main_layout.addLayout(stats_layout)
 
@@ -66,7 +67,6 @@ class TWidget(QTextEdit):
         self.setFont(get_font_for_platform(14))
         self.setAcceptRichText(False)
         self.filepath = None
-        self.encoding = 'utf-8'
         
         qconfig.themeChanged.connect(self.update_theme)
         self.update_theme()
@@ -91,7 +91,7 @@ class TWidget(QTextEdit):
         line = cursor.blockNumber() + 1
         col = cursor.positionInBlock() + 1
 
-        self.word_stats_label.setText(f"Line: {line} | Column: {col} | Characters: {characters} | Words: {words}    ")
+        self.word_stats_label.setText(f"Line: {line} | Column: {col} | Characters: {characters} | Words: {words} | Encodings: {self.encoding}    ")
 
     def contextMenuEvent(self, e):
         menu = RoundMenu(parent=self)
@@ -325,6 +325,7 @@ class TWidget(QTextEdit):
 
     def set_encoding(self, encoding):
         self.encoding = encoding
+        self.update_word_stats()
         print(f"Encoding set to: {encoding}")
 
 def get_font_for_platform(size=12, plain=True):
