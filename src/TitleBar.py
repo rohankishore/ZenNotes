@@ -119,7 +119,7 @@ class CustomTitleBar(MSFluentTitleBar):
 
         encoding_menu = RoundMenu("Encoding", self)
         for encoding in encodings:
-            encoding_action = Action(text=encoding)
+            encoding_action = Action(text=encoding.upper())
             encoding_action.triggered.connect(lambda checked, enc=encoding: parent.set_twidget_encoding(enc))
             encoding_menu.addAction(encoding_action)
         self.menu.addMenu(encoding_menu)
