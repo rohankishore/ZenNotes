@@ -5,7 +5,7 @@ from PySide6.QtCore import *
 from qfluentwidgets import FluentIcon as FIF
 from qfluentwidgets import *
 from TextWidget import TWidget
-
+from zencodings import encodings
 
 class CustomTitleBar(MSFluentTitleBar):
 
@@ -116,6 +116,13 @@ class CustomTitleBar(MSFluentTitleBar):
         view_menu.addAction(dark_mode_action)
         view_menu.addAction(light_mode_action)
         self.menu.addMenu(view_menu)
+
+        encoding_menu = RoundMenu("Encoding", self)
+        for encoding in encodings:
+            encoding_action = Action(text=encoding)
+            encoding_action.triggered.connect(lambda checked, enc=encoding: parent.set_twidget_encoding(enc))
+            encoding_menu.addAction(encoding_action)
+        self.menu.addMenu(encoding_menu)
 
         # Create the menuButton
         # self.menuButton = TransparentToolButton(FIF.MENU, self)
