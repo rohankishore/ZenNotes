@@ -76,5 +76,5 @@ Icon Credit : [Fluent Icons](https://fluenticons.co/)
 
 ## 🪪 License
 
-This project is licensed under the MIT License. See LICENSE.md for more info.
+This project is licensed under the GPLv3 license. See the `LICENSE` file for more info.
 
