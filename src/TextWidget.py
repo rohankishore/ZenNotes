@@ -66,6 +66,7 @@ class TWidget(QTextEdit):
         self.setFont(get_font_for_platform(14))
         self.setAcceptRichText(False)
         self.filepath = None
+        self.encoding = 'utf-8'
         
         qconfig.themeChanged.connect(self.update_theme)
         self.update_theme()
@@ -321,6 +322,10 @@ class TWidget(QTextEdit):
 
     def ensureCursorVisible(self):
         self.text_editor.ensureCursorVisible()
+
+    def set_encoding(self, encoding):
+        self.encoding = encoding
+        print(f"Encoding set to: {encoding}")
 
 def get_font_for_platform(size=12, plain=True):
     system_name = platform.system()

@@ -124,7 +124,6 @@ class Window(MSFluentWindow):
 
         self.setTitleBar(CustomTitleBar(self))
         self.tabBar = self.titleBar.tabBar  # type: TabBar
-        self.encodings = 'utf-8'
 
         # Create shortcuts for Save and Open
         self.save_shortcut = QShortcut(QKeySequence.StandardKey.Save, self)
