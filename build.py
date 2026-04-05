@@ -3,6 +3,7 @@ import sys
 import os
 import shutil
 import platform
+import install_deps
 
 def copy_icon():
     shutil.copy('icon.ico', 'dist/main/icon.ico')
@@ -43,6 +44,7 @@ def run_pyinstaller():
 
 
 if __name__ == '__main__':
+    install_deps.main()
     run_pyinstaller()
 
 
