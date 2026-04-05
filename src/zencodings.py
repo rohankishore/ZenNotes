@@ -4,6 +4,6 @@
 from notepadequalequal.common import encodings
 from notepadequalequal.fileio import retrieve_file
 
-def write_file(content, filepath, encoding):
+def write_file(content, filepath, encoding='utf-8'):
     with open(filepath, "w", encoding=encoding) as f:
         f.write(content)
