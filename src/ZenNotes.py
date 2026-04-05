@@ -700,6 +700,7 @@ class Window(MSFluentWindow):
         self.homeInterface.addWidget(tab_interface)
         self.current_editor = t_widget  # Add TWidget to the corresponding TabInterface
         self.tabBar.setCurrentTab(routeKey)  # Switch to the newly added tab
+        self.onTabChanged(self.tabBar.currentIndex())  # Update the current_editor reference
         return t_widget
 
 def main():
