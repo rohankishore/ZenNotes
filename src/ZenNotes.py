@@ -630,8 +630,7 @@ class Window(MSFluentWindow):
                     name += '.txt'  # Default to .txt
 
             # Write file
-            with open(name, 'w', encoding='utf-8') as file:
-                file.write(text_to_save)
+            write_file(text_to_save, name)
             
             # Prepare UI update values
             title = os.path.basename(name) + " ~ ZenNotes"
