@@ -3,3 +3,7 @@
 
 from notepadequalequal.common import encodings
 from notepadequalequal.fileio import retrieve_file
+
+def write_file(content, filepath, encoding):
+    with open(filepath, "w", encoding=encoding) as f:
+        f.write(content)
