@@ -703,6 +703,9 @@ class Window(MSFluentWindow):
         self.tabBar.setCurrentTab(routeKey)  # Switch to the newly added tab
         self.onTabChanged(self.tabBar.currentIndex())  # Update the current_editor reference
         return t_widget
+    
+    def set_twidget_encoding(self, encoding):
+        self.current_editor.set_encoding(encoding)
 
 def main():
     app = QApplication()
