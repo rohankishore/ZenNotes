@@ -363,9 +363,8 @@ class Window(MSFluentWindow):
 
         if file_path:
             try:
-                with open(file_path, "r", encoding="utf-8") as f:
-                    filedata = f.read()
-                    # print(f"filedata: {filedata}")
+                filedata = retrieve_file(file_path)
+                # print(f"filedata: {filedata}")
 
                 if self.mode == "markdown":
                     self.stackedWidget.setCurrentWidget(self.markdownInterface)
@@ -563,9 +562,11 @@ class Window(MSFluentWindow):
                 # Use existing filepath
                 name = editor.filepath
 
+            # Get encoding from current editor
+            encoding = self.current_editor.encoding
+
             # Write file
-            with open(name, 'w', encoding='utf-8') as file:
-                file.write(text_to_save)
+            write_file(text_to_save, name, encoding=encoding)
             
             # Prepare UI update values
             title = os.path.basename(name) + " ~ ZenNotes"
@@ -592,7 +593,7 @@ class Window(MSFluentWindow):
             
             print(f"File saved successfully to: {name}")
         except Exception as e:
-            print(f"An error occurred while saving the document: {e}")
+            QMessageBox.critical(self, "Save Error", f"An error occurred while saving the document: {e}")
 
     def save_document_as(self):
         try:
@@ -630,9 +631,12 @@ class Window(MSFluentWindow):
                     name += ext
                 else:
                     name += '.txt'  # Default to .txt
+            
+            # Get encoding from current editor
+            encoding = self.current_editor.encoding
 
             # Write file
-            write_file(text_to_save, name)
+            write_file(text_to_save, name, encoding=encoding)
             
             # Prepare UI update values
             title = os.path.basename(name) + " ~ ZenNotes"
@@ -659,7 +663,7 @@ class Window(MSFluentWindow):
             
             print(f"File saved as: {name}")
         except Exception as e:
-            print(f"An error occurred while saving the document: {e}")
+            QMessageBox.critical(self, "Save Error", f"An error occurred while saving the document: {e}")
 
     def tts(self):
         cursor = self.current_editor.textCursor()
