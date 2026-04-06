@@ -1,10 +1,23 @@
 import sys
-from PySide6.QtWidgets import QHBoxLayout
+from PySide6.QtWidgets import QHBoxLayout, QSizePolicy
 from PySide6.QtCore import *
+from PySide6.QtGui import QWheelEvent
 #from PyQt6.QtGui import QIcon
 from qfluentwidgets import FluentIcon as FIF
 from qfluentwidgets import *
 from TextWidget import TWidget
+
+
+class CustomTabBar(TabBar):
+    def wheelEvent(self, e: QWheelEvent):
+        delta = e.pixelDelta().x() if not e.pixelDelta().isNull() else e.angleDelta().x()
+        if delta != 0:
+            scroll_bar = self.horizontalScrollBar()
+            scroll_bar.setValue(scroll_bar.value() - delta)
+            e.accept()
+            return
+
+        super().wheelEvent(e)
 from zencodings import encodings
 
 class CustomTitleBar(MSFluentTitleBar):
@@ -30,13 +43,15 @@ class CustomTitleBar(MSFluentTitleBar):
 
         self.hBoxLayout.insertLayout(4, self.toolButtonLayout)
 
-        self.tabBar = TabBar(self)
+        self.tabBar = CustomTabBar(self)
 
         self.tabBar.setMovable(True)
         self.tabBar.setTabMaximumWidth(220)
         self.tabBar.setTabShadowEnabled(False)
         self.tabBar.setTabSelectedBackgroundColor(QColor(255, 255, 255, 125), QColor(255, 255, 255, 50))
         self.tabBar.setScrollable(True)
+        self.tabBar.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.tabBar.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.tabBar.setCloseButtonDisplayMode(TabCloseButtonDisplayMode.ON_HOVER)
 
         self.tabBar.tabCloseRequested.connect(self.removeTabHandler)
