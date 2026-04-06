@@ -20,7 +20,7 @@ from qframelesswindow import *
 
 from TextWidget import TWidget, get_font_for_platform
 from TitleBar import CustomTitleBar
-from zencodings import write_file, retrieve_file
+from zencodings import write_file, retrieve_file_with_encoding
 
 class NoEditorSpecified(Exception):
     pass
@@ -363,7 +363,7 @@ class Window(MSFluentWindow):
 
         if file_path:
             try:
-                filedata = retrieve_file(file_path)
+                filedata, encoding = retrieve_file_with_encoding(file_path)
                 # print(f"filedata: {filedata}")
 
                 if self.mode == "markdown":
@@ -416,6 +416,8 @@ class Window(MSFluentWindow):
                 first_line = filedata.split('\n')[0].strip()
                 if first_line == ".LOG":
                     editor.append(str(datetime.datetime.now()))
+                self.current_editor.encoding = encoding
+                self.current_editor.update_word_stats()
                 print("Editor text length:", len(editor.toPlainText()))
             except UnicodeDecodeError:
                 MessageBox(
