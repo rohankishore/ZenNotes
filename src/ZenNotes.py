@@ -20,6 +20,7 @@ from qframelesswindow import *
 
 from TextWidget import TWidget, get_font_for_platform
 from TitleBar import CustomTitleBar
+from zencodings import write_file, retrieve_file_with_encoding
 
 class NoEditorSpecified(Exception):
     pass
@@ -119,6 +120,7 @@ class Window(MSFluentWindow):
             shutil.copytree(self.configSrcDirPath, self.configDirPath, dirs_exist_ok=True)
 
         self.apply_saved_theme()
+        self.encoding = 'utf-8' # default encoding
 
         self.setTitleBar(CustomTitleBar(self))
         self.tabBar = self.titleBar.tabBar  # type: TabBar
@@ -361,9 +363,8 @@ class Window(MSFluentWindow):
 
         if file_path:
             try:
-                with open(file_path, "r", encoding="utf-8") as f:
-                    filedata = f.read()
-                    # print(f"filedata: {filedata}")
+                filedata, encoding = retrieve_file_with_encoding(file_path)
+                # print(f"filedata: {filedata}")
 
                 if self.mode == "markdown":
                     self.stackedWidget.setCurrentWidget(self.markdownInterface)
@@ -415,6 +416,8 @@ class Window(MSFluentWindow):
                 first_line = filedata.split('\n')[0].strip()
                 if first_line == ".LOG":
                     editor.append(str(datetime.datetime.now()))
+                self.current_editor.encoding = encoding
+                self.current_editor.update_word_stats()
                 print("Editor text length:", len(editor.toPlainText()))
             except UnicodeDecodeError:
                 MessageBox(
@@ -561,9 +564,11 @@ class Window(MSFluentWindow):
                 # Use existing filepath
                 name = editor.filepath
 
+            # Get encoding from current editor
+            encoding = self.current_editor.encoding
+
             # Write file
-            with open(name, 'w', encoding='utf-8') as file:
-                file.write(text_to_save)
+            write_file(text_to_save, name, encoding=encoding)
             
             # Prepare UI update values
             title = os.path.basename(name) + " ~ ZenNotes"
@@ -590,7 +595,7 @@ class Window(MSFluentWindow):
             
             print(f"File saved successfully to: {name}")
         except Exception as e:
-            print(f"An error occurred while saving the document: {e}")
+            QMessageBox.critical(self, "Save Error", f"An error occurred while saving the document: {e}")
 
     def save_document_as(self):
         try:
@@ -628,10 +633,12 @@ class Window(MSFluentWindow):
                     name += ext
                 else:
                     name += '.txt'  # Default to .txt
+            
+            # Get encoding from current editor
+            encoding = self.current_editor.encoding
 
             # Write file
-            with open(name, 'w', encoding='utf-8') as file:
-                file.write(text_to_save)
+            write_file(text_to_save, name, encoding=encoding)
             
             # Prepare UI update values
             title = os.path.basename(name) + " ~ ZenNotes"
@@ -658,7 +665,7 @@ class Window(MSFluentWindow):
             
             print(f"File saved as: {name}")
         except Exception as e:
-            print(f"An error occurred while saving the document: {e}")
+            QMessageBox.critical(self, "Save Error", f"An error occurred while saving the document: {e}")
 
     def tts(self):
         cursor = self.current_editor.textCursor()
@@ -700,7 +707,11 @@ class Window(MSFluentWindow):
         self.homeInterface.addWidget(tab_interface)
         self.current_editor = t_widget  # Add TWidget to the corresponding TabInterface
         self.tabBar.setCurrentTab(routeKey)  # Switch to the newly added tab
+        self.onTabChanged(self.tabBar.currentIndex())  # Update the current_editor reference
         return t_widget
+    
+    def set_twidget_encoding(self, encoding):
+        self.current_editor.set_encoding(encoding)
 
 def main():
     app = QApplication()

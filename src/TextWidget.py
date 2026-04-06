@@ -32,6 +32,7 @@ class TWidget(QTextEdit):
         self.configSrcDirPath = os.path.join(self.scriptDir, "resource")
         self.configPath = os.path.join(self.local_app_data, "ZenNotes", "data", "config.json")
         self.configDirPath = os.path.join(self.local_app_data, "ZenNotes")
+        self.encoding = 'utf-8'
 
         from qfluentwidgets.common.config import qconfig
         from qfluentwidgets import isDarkTheme
@@ -47,12 +48,13 @@ class TWidget(QTextEdit):
         self.text_editor.setFont(get_font_for_platform(14))
         self.text_editor.setAcceptRichText(False)
         self.text_editor.textChanged.connect(self.update_word_stats)
+        self.text_editor.cursorPositionChanged.connect(self.update_word_stats)
         main_layout.addWidget(self.text_editor)
 
         # Add the stats label at the bottom-right
         stats_layout = QHBoxLayout()
         stats_layout.addStretch()  # Push the label to the right
-        self.word_stats_label = QLabel("Words: 0 | Characters: 0", self)
+        self.word_stats_label = QLabel(f"Line: 0 | Column: 0 | Characters: 0 | Words: 0 | Encoding: {self.encoding.upper()}    ", self)
         stats_layout.addWidget(self.word_stats_label)
         main_layout.addLayout(stats_layout)
 
@@ -84,7 +86,12 @@ class TWidget(QTextEdit):
         text = self.toPlainText()
         words = len(text.split())
         characters = len(text)
-        self.word_stats_label.setText(f"Words: {words} | Characters: {characters}")
+
+        cursor = self.textCursor()
+        line = cursor.blockNumber() + 1
+        col = cursor.positionInBlock() + 1
+
+        self.word_stats_label.setText(f"Line: {line} | Column: {col} | Characters: {characters} | Words: {words} | Encoding: {self.encoding.upper()}    ")
 
     def contextMenuEvent(self, e):
         menu = RoundMenu(parent=self)
@@ -315,6 +322,11 @@ class TWidget(QTextEdit):
 
     def ensureCursorVisible(self):
         self.text_editor.ensureCursorVisible()
+
+    def set_encoding(self, encoding):
+        self.encoding = encoding
+        self.update_word_stats()
+        print(f"Encoding set to: {encoding}")
 
 def get_font_for_platform(size=12, plain=True):
     system_name = platform.system()
