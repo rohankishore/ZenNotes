@@ -1,7 +1,7 @@
 import sys
 from PySide6.QtWidgets import QHBoxLayout, QSizePolicy
 from PySide6.QtCore import *
-from PySide6.QtGui import QWheelEvent
+from PySide6.QtGui import QWheelEvent, QShortcut, QKeySequence
 #from PyQt6.QtGui import QIcon
 from qfluentwidgets import FluentIcon as FIF
 from qfluentwidgets import *
@@ -70,7 +70,9 @@ class CustomTitleBar(MSFluentTitleBar):
 
         file_menu = RoundMenu("File", self)
         new_action = Action(text="New", icon=FIF.ADD.icon(QColor("white")))
+        new_shortcut = QShortcut(QKeySequence("Ctrl+N"), self)
         new_action.triggered.connect(parent.onTabAddRequested)
+        new_shortcut.activated.connect(parent.onTabAddRequested)
         file_menu.addAction(new_action)
         open_action = Action(text="Open", icon=FIF.SEND_FILL)
         open_action.triggered.connect(parent.open_document)
