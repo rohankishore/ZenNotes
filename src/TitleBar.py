@@ -39,7 +39,7 @@ class CustomTitleBar(MSFluentTitleBar):
         self.tabBar.setScrollable(True)
         self.tabBar.setCloseButtonDisplayMode(TabCloseButtonDisplayMode.ON_HOVER)
 
-        self.tabBar.tabCloseRequested.connect(self.tabBar.removeTab)
+        self.tabBar.tabCloseRequested.connect(self.removeTabHandler)
         # self.tabBar.currentChanged.connect(lambda i: print(self.tabBar.tabText(i)))
 
         self.hBoxLayout.insertWidget(5, self.tabBar, 1)
@@ -138,6 +138,10 @@ class CustomTitleBar(MSFluentTitleBar):
 
         pos.setX(pos.x() - self.tabBar.x())
         return not self.tabBar.tabRegion().contains(pos)
+    
+    def removeTabHandler(self, index: int):
+        self.tabBar.removeTab(index)
+        self.parent().onTabChanged(self.tabBar.currentIndex())
 
     def test(self):
         print("hello")
