@@ -29,7 +29,8 @@ def run_pyinstaller():
                 '--onedir',  # Create a single folder
                 '-w',  # Makes it windowed
                 '--icon=icon.ico', 
-                '--add-data', 'src/resource:resource'
+                '--add-data', 'src/resource:resource',
+                '--add-data', 'src/notepadequalequal:notepadequalequal'
             ]
 
         # Run PyInstaller
