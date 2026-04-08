@@ -14,7 +14,7 @@ class Finder(QDialog):
 
         layout = QVBoxLayout(self)
 
-        self.label = QLabel("Enter the text that you want to find:")
+        self.label = QLabel("Enter the text you want to find:")
         layout.addWidget(self.label)
 
         self.line_edit = QLineEdit()
@@ -78,7 +78,7 @@ class FindAndReplace(Finder):
         super().__init__(parent=parent, textWidget=textWidget)
         self.setWindowTitle("Find and Replace")
 
-        self.replace_label = QLabel("Enter the replacement text:")
+        self.replace_label = QLabel("Enter the text you want to replace it with:")
         self.replace_line_edit = QLineEdit()
 
         self.button_box.removeButton(self.close_button)
@@ -93,4 +93,3 @@ class FindAndReplace(Finder):
         self.layout().insertWidget(3, self.replace_line_edit)
 
         self.replace_button.clicked.connect(lambda: self.replace(textWidget=self.text_widget))
-        self.replace_all_button.clicked.connect(lambda: self.replaceAll(textWidget=self.text_widget))
