@@ -1,9 +1,20 @@
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QDialogButtonBox, QPushButton, QMessageBox, QTextEdit
 from PySide6.QtGui import QTextCursor
 
+# Misc functions
+def resolveTextWidget(textWidget):
+    if textWidget is None:
+        return None
+    if hasattr(textWidget, 'text_editor') and isinstance(getattr(textWidget, 'text_editor'), QTextEdit):
+        return textWidget.text_editor
+    return textWidget
+
+# Exceptions
 class QTextEditNotProvidedError(Exception):
     pass
 
+
+# Main classes
 class Finder(QDialog):
     def __init__(self, parent=None, textWidget=None):
         super().__init__(parent=parent)
@@ -35,13 +46,6 @@ class Finder(QDialog):
     def getText(self):
         return self.line_edit.text()
 
-    def resolveTextWidget(self, textWidget):
-        if textWidget is None:
-            return None
-        if hasattr(textWidget, 'text_editor') and isinstance(getattr(textWidget, 'text_editor'), QTextEdit):
-            return textWidget.text_editor
-        return textWidget
-
     def findNext(self, text_edit, text):
         if not text_edit:
             raise QTextEditNotProvidedError("No text widget provided")
@@ -65,7 +69,7 @@ class Finder(QDialog):
     def findAndSelect(self, textToFind="", textWidget=None):
         if not textToFind:
             textToFind = self.getText()
-        resolved_widget = self.resolveTextWidget(textWidget)
+        resolved_widget = resolveTextWidget(textWidget)
         if not resolved_widget:
             raise QTextEditNotProvidedError("No text widget provided")
 
@@ -101,7 +105,7 @@ class FindAndReplace(Finder):
     def replaceText(self, textWidget=None, number=-1):
         text_to_find = self.getText()
         text_to_replace = self.replace_line_edit.text()
-        resolved_widget = self.resolveTextWidget(textWidget)
+        resolved_widget = resolveTextWidget(textWidget)
         if not resolved_widget:
             raise QTextEditNotProvidedError("No text widget provided")
 
