@@ -495,6 +495,9 @@ class Window(MSFluentWindow):
         if ok and word_to_find:
             find_word(word_to_find)
 
+    def findText(self):
+        pass
+
     def checkExt(self, name):
         root, ext = os.path.splitext(name)
         if ext:
