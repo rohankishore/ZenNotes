@@ -93,3 +93,5 @@ class FindAndReplace(Finder):
         self.layout().insertWidget(3, self.replace_line_edit)
 
         self.replace_button.clicked.connect(lambda: self.replace(textWidget=self.text_widget))
+        self.close_button.clicked.connect(self.reject)
+
