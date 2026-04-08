@@ -84,18 +84,21 @@ class FindAndReplace(Finder):
         self.button_box.removeButton(self.close_button)
 
         self.replace_button = QPushButton("Replace")
+        self.replaceNext_button = QPushButton("Replace Next")
         self.close_button = QPushButton("Close")
 
         self.button_box.addButton(self.replace_button, QDialogButtonBox.ActionRole)
+        self.button_box.addButton(self.replaceNext_button, QDialogButtonBox.ActionRole)
         self.button_box.addButton(self.close_button, QDialogButtonBox.DestructiveRole)
 
         self.layout().insertWidget(2, self.replace_label)
         self.layout().insertWidget(3, self.replace_line_edit)
 
         self.replace_button.clicked.connect(lambda: self.replaceText(textWidget=self.text_widget))
+        self.replaceNext_button.clicked.connect(lambda: self.replaceNext(textWidget=self.text_widget))
         self.close_button.clicked.connect(self.reject)
 
-    def replaceText(self, textWidget=None):
+    def replaceText(self, textWidget=None, number=-1):
         text_to_find = self.getText()
         text_to_replace = self.replace_line_edit.text()
         resolved_widget = self.resolveTextWidget(textWidget)
@@ -108,5 +111,8 @@ class FindAndReplace(Finder):
             return
         
         text = resolved_widget.toPlainText()
-        modifiedText = text.replace(text_to_find, text_to_replace, 1)
+        modifiedText = text.replace(text_to_find, text_to_replace, number)
         resolved_widget.setPlainText(modifiedText)
+
+    def replaceNext(self, textWidget=None):
+        self.replaceText(textWidget=textWidget, number=1)
