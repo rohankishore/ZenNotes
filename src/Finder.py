@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QDialogButtonBox, QPushButton
+from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QDialogButtonBox, QPushButton, QMessageBox
 from PySide6.QtGui import QTextCursor
 
 class QTextEditNotProvidedError(Exception):
@@ -58,4 +58,6 @@ class Finder(QDialog):
         if not textWidget:
             raise QTextEditNotProvidedError("No text widget provided")
 
-        self.findNext(textWidget, textToFind)
+        found = self.findNext(textWidget, textToFind)
+        if not found:
+            QMessageBox.information(self, "Not Found", f"'{textToFind}' not found in the document.")

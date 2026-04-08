@@ -97,15 +97,9 @@ class CustomTitleBar(MSFluentTitleBar):
         paste_action.triggered.connect(lambda : TWidget.paste(parent.current_editor))
         edit_menu.addAction(paste_action)
         edit_menu.addSeparator()
-
-        find_menu = RoundMenu("Find", self)
-        find_first_action = Action(text="Find First", icon=FIF.SEARCH)
-        find_first_action.triggered.connect(lambda: parent.find_first())
-        find_menu.addAction(find_first_action)
         find_action = Action(text="Find", icon=FIF.SEARCH)
-        find_action.triggered.connect(lambda: parent.findWord())
-        #find_menu.addAction(find_action)
-        edit_menu.addMenu(find_menu)
+        find_action.triggered.connect(lambda: parent.findText())
+        edit_menu.addAction(find_action)
 
         replace_action = Action(text="Replace", icon=FIF.REMOVE_FROM)
         replace_action.triggered.connect(lambda: TWidget.paste(parent.current_editor))
