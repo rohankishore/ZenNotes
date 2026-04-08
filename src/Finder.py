@@ -3,4 +3,35 @@ from PySide6.QtGui import QTextCursor
 
 class QTextEditNotProvidedError(Exception):
     pass
+
 class Finder(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.setWindowTitle("Find")
+
+        layout = QVBoxLayout(self)
+
+        self.label = QLabel("Enter the text that you want to find:")
+        layout.addWidget(self.label)
+
+        self.line_edit = QLineEdit()
+        layout.addWidget(self.line_edit)
+
+        self.find_button = QPushButton("Find")
+        self.cancel_button = QPushButton("Cancel")
+        self.close_button = QPushButton("Close")
+
+        self.button_box = QDialogButtonBox()
+        self.button_box.addButton(self.find_button, QDialogButtonBox.AcceptRole)
+        self.button_box.addButton(self.cancel_button, QDialogButtonBox.RejectRole)
+        self.button_box.addButton(self.close_button, QDialogButtonBox.DestructiveRole)
+
+        layout.addWidget(self.button_box)
+
+        self.find_button.clicked.connect(self.accept)
+        self.cancel_button.clicked.connect(self.reject)
+        self.close_button.clicked.connect(self.close)
+
+    def getText(self):
+        return self.line_edit.text()
