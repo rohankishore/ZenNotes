@@ -20,18 +20,15 @@ class Finder(QDialog):
         layout.addWidget(self.line_edit)
 
         self.find_button = QPushButton("Find")
-        self.cancel_button = QPushButton("Cancel")
         self.close_button = QPushButton("Close")
 
         self.button_box = QDialogButtonBox()
         self.button_box.addButton(self.find_button, QDialogButtonBox.AcceptRole)
-        self.button_box.addButton(self.cancel_button, QDialogButtonBox.RejectRole)
         self.button_box.addButton(self.close_button, QDialogButtonBox.DestructiveRole)
 
         layout.addWidget(self.button_box)
 
-        self.find_button.clicked.connect(self.accept)
-        self.cancel_button.clicked.connect(self.reject)
+        self.find_button.clicked.connect(self.findAndSelect)
         self.close_button.clicked.connect(self.close)
 
     def getText(self):
