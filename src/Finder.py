@@ -95,3 +95,18 @@ class FindAndReplace(Finder):
         self.replace_button.clicked.connect(lambda: self.replace(textWidget=self.text_widget))
         self.close_button.clicked.connect(self.reject)
 
+    def replaceText(self, textWidget=None):
+        text_to_find = self.getText()
+        text_to_replace = self.replace_line_edit.text()
+        resolved_widget = self.resolveTextWidget(textWidget)
+        if not resolved_widget:
+            raise QTextEditNotProvidedError("No text widget provided")
+
+        found = self.findNext(resolved_widget, text_to_find)
+        if not found:
+            QMessageBox.information(self, "Not Found", f"'{text_to_find}' not found in the document.")
+            return
+        
+        text = resolved_widget.toPlainText()
+        modifiedText = text.replace(text_to_find, text_to_replace, 1)
+        resolved_widget.setPlainText(modifiedText)
