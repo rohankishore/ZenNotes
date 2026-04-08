@@ -72,3 +72,25 @@ class Finder(QDialog):
         found = self.findNext(resolved_widget, textToFind)
         if not found:
             QMessageBox.information(self, "Not Found", f"'{textToFind}' not found in the document.")
+
+class FindAndReplace(Finder):
+    def __init__(self, parent=None, textWidget=None):
+        super().__init__(parent=parent, textWidget=textWidget)
+        self.setWindowTitle("Find and Replace")
+
+        self.replace_label = QLabel("Enter the replacement text:")
+        self.replace_line_edit = QLineEdit()
+
+        self.button_box.removeButton(self.close_button)
+
+        self.replace_button = QPushButton("Replace")
+        self.close_button = QPushButton("Close")
+
+        self.button_box.addButton(self.replace_button, QDialogButtonBox.ActionRole)
+        self.button_box.addButton(self.close_button, QDialogButtonBox.DestructiveRole)
+
+        self.layout().insertWidget(2, self.replace_label)
+        self.layout().insertWidget(3, self.replace_line_edit)
+
+        self.replace_button.clicked.connect(lambda: self.replace(textWidget=self.text_widget))
+        self.replace_all_button.clicked.connect(lambda: self.replaceAll(textWidget=self.text_widget))

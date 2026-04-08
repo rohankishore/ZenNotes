@@ -102,8 +102,8 @@ class CustomTitleBar(MSFluentTitleBar):
         edit_menu.addAction(find_action)
 
         replace_action = Action(text="Replace", icon=FIF.REMOVE_FROM)
-        replace_action.triggered.connect(lambda: TWidget.paste(parent.current_editor))
-        #edit_menu.addAction(replace_action)
+        replace_action.triggered.connect(lambda: parent.replaceText())
+        edit_menu.addAction(replace_action)
         goto_action = Action(text="Goto", icon=FIF.UP)
         goto_action.triggered.connect(lambda: parent.go_to_line())
         edit_menu.addAction(goto_action)
