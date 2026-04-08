@@ -6,7 +6,8 @@ class QTextEditNotProvidedError(Exception):
 
 class Finder(QDialog):
     def __init__(self, parent=None):
-        super().__init__(parent)
+        super().__init__(parent=parent)
+        self.parent = parent
 
         self.setWindowTitle("Find")
 
@@ -35,3 +36,29 @@ class Finder(QDialog):
 
     def getText(self):
         return self.line_edit.text()
+
+    def findNext(self, text_edit, text):
+        if not text:
+            raise QTextEditNotProvidedError("No text widget provided")
+
+        cursor = text_edit.textCursor()
+
+        found_cursor = text_edit.document().find(text, cursor)
+        if found_cursor.isNull():
+            start_cursor = QTextCursor(text_edit.document())
+            found_cursor = text_edit.document().find(text, start_cursor)
+            if found_cursor.isNull():
+                return False
+
+        text_edit.setTextCursor(found_cursor)
+        text_edit.ensureCursorVisible()
+
+        return True
+    
+    def findAndSelect(self, textToFind="", textWidget=None):
+        if not textToFind:
+            textToFind = self.getText()
+        if not textWidget:
+            raise QTextEditNotProvidedError("No text widget provided")
+
+        self.findNext(textWidget, textToFind)
