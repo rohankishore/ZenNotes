@@ -499,11 +499,8 @@ class Window(MSFluentWindow):
             find_word(word_to_find)
 
     def findText(self):
-        finder = Finder(parent=self)
-        if finder.exec():
-            text_to_find = finder.getText()
-            if text_to_find:
-                finder.findAndSelect(self, textToFind=text_to_find, textWidget=self.current_editor)
+        finder = Finder(parent=self, textWidget=self.current_editor)
+        finder.exec()
 
     def checkExt(self, name):
         root, ext = os.path.splitext(name)
