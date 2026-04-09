@@ -7,6 +7,7 @@ a = Analysis(
     binaries=[],
     datas = [
         ('src/resource', 'resource'),
+        ('src/notepadequalequal', 'notepadequalequal'),
     ],
     hiddenimports=[],
     hookspath=[],

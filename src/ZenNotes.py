@@ -21,6 +21,7 @@ from qframelesswindow import *
 from TextWidget import TWidget, get_font_for_platform
 from TitleBar import CustomTitleBar
 from zencodings import write_file, retrieve_file_with_encoding
+from Finder import Finder, FindAndReplace
 
 class NoEditorSpecified(Exception):
     pass
@@ -159,6 +160,8 @@ class Window(MSFluentWindow):
         self.tabCheckTimer = QTimer(self)
         self.tabCheckTimer.timeout.connect(self.checkForNoTabs)
         self.tabCheckTimer.start(100)
+
+        self.onTabChanged(self.tabBar.currentIndex())  # Initialize current_editor reference
 
     def load_config(self):
         default_config = {"theme": "dark"}
@@ -494,6 +497,14 @@ class Window(MSFluentWindow):
 
         if ok and word_to_find:
             find_word(word_to_find)
+
+    def findText(self):
+        finder = Finder(parent=self, textWidget=self.current_editor)
+        finder.exec()
+
+    def replaceText(self):
+        replacer = FindAndReplace(parent=self, textWidget=self.current_editor)
+        replacer.exec()
 
     def checkExt(self, name):
         root, ext = os.path.splitext(name)
