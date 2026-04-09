@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QDialogButtonBox, QPushButton, QMessageBox, QTextEdit
-from PySide6.QtGui import QTextCursor
+from PySide6.QtGui import QTextCursor, QKeySequence, QShortcut
 
 # Misc functions
 def resolveTextWidget(textWidget):
@@ -42,6 +42,9 @@ class Finder(QDialog):
 
         self.find_button.clicked.connect(lambda: self.findAndSelect(textWidget=self.text_widget))
         self.close_button.clicked.connect(self.reject)
+
+        self.find_shortcut = QShortcut(QKeySequence("Enter"), self)
+        self.find_shortcut.activated.connect(lambda: self.findAndSelect(textWidget=self.text_widget))
 
     def getText(self):
         return self.line_edit.text()
@@ -101,6 +104,11 @@ class FindAndReplace(Finder):
         self.replace_button.clicked.connect(lambda: self.replaceText(textWidget=self.text_widget))
         self.replaceNext_button.clicked.connect(lambda: self.replaceNext(textWidget=self.text_widget))
         self.close_button.clicked.connect(self.reject)
+
+        self.replace_shortcut = QShortcut(QKeySequence("Shift+Enter"), self)
+        self.replaceNext_shortcut = QShortcut(QKeySequence("Ctrl+Shift+Enter"), self)
+        self.replace_shortcut.activated.connect(lambda: self.replaceText(textWidget=self.text_widget))
+        self.replaceNext_shortcut.activated.connect(lambda: self.replaceNext(textWidget=self.text_widget))
 
     def replaceText(self, textWidget=None, number=-1):
         text_to_find = self.getText()
