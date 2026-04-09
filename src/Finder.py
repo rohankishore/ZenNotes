@@ -46,6 +46,8 @@ class Finder(QDialog):
         self.find_shortcut = QShortcut(QKeySequence("Enter"), self)
         self.find_shortcut.activated.connect(lambda: self.findAndSelect(textWidget=self.text_widget))
 
+        self.line_edit.setFocus()
+
     def getText(self):
         return self.line_edit.text()
 
@@ -109,6 +111,8 @@ class FindAndReplace(Finder):
         self.replaceNext_shortcut = QShortcut(QKeySequence("Ctrl+Shift+Enter"), self)
         self.replace_shortcut.activated.connect(lambda: self.replaceText(textWidget=self.text_widget))
         self.replaceNext_shortcut.activated.connect(lambda: self.replaceNext(textWidget=self.text_widget))
+
+        self.line_edit.setFocus()
 
     def replaceText(self, textWidget=None, number=-1):
         text_to_find = self.getText()
