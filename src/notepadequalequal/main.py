@@ -19,12 +19,20 @@ import re
 import pathlib
 import pyperclip
 import builtins
-import common
-from common import *
-from platformSpecific import *
-import fileio
-from fileio import *
-from correction import *
+try:
+    from . import common
+    from .common import *
+    from .platformSpecific import *
+    from . import fileio
+    from .fileio import *
+    from .correction import *
+except Exception:
+    import common
+    from common import *
+    from platformSpecific import *
+    import fileio
+    from fileio import *
+    from correction import *
 
 # Redirect output to log file
 if __name__ == '__main__':
@@ -350,10 +358,13 @@ def findNext(text):
         end = str(start) + " + " + str(len(text)) + "c"
         text_area.tag_add("highlight", start, end)
     except Exception as e:
-        start = "1.0"
-        start = text_area.search(text, start, stopindex="end")
-        end = str(start) + " + " + str(len(text)) + "c"
-        text_area.tag_add("highlight", start, end)
+        if text in text_area.get('1.0', 'end-1c'):
+            start = "1.0"
+            start = text_area.search(text, start, stopindex="end")
+            end = str(start) + " + " + str(len(text)) + "c"
+            text_area.tag_add("highlight", start, end)
+        else:
+            messagebox.showerror("Text Not Found", "Query not found in text.")
     
     text_area.tag_config("highlight", background="yellow")
     text_area.mark_set("insert", end)

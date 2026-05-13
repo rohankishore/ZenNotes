@@ -3,10 +3,15 @@ import sys
 import traceback
 from tkinter import messagebox, filedialog
 import errno
-import common
 import platform
-import platformSpecific as ps
-from exceptions import UnsupportedEncodingError
+try:
+    from . import common
+    from . import platformSpecific as ps
+    from .exceptions import UnsupportedEncodingError
+except Exception:
+    import common
+    import platformSpecific as ps
+    from exceptions import UnsupportedEncodingError
 
 text_area = None
 
