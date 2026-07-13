@@ -2,7 +2,6 @@ import os
 import sys
 import hashlib
 import builtins
-import tkinter as tk
 
 # Define and create, if applicable, a cache folder
 cache_path = os.path.join(os.path.expanduser('~'), '.notepadee', 'cache')
@@ -30,7 +29,7 @@ def printlog(message, *args, **kwargs):
     #     file.write("Notepad== at " + str(pid) + ": " + str(message))
     print("Notepad== at " + str(pid) + ": " + str(message), *args, **kwargs)
 
-versionInfo = """Notepad==, version 5.3.1
+versionInfo = """Notepad==, version 5.4.0
 (C) 2024-2026 Matthew Yang"""
 
 arg = sys.argv
@@ -101,7 +100,22 @@ def setup_prefs(event=None):
         with open(last_write, 'w', encoding='utf-8'):
             pass
 
+def setup_logging():
+    global log_file
+    log_file = open(log_file, 'a', encoding='utf-8', buffering=1)
+    sys.stdout = log_file
+    sys.stderr = log_file
+    original_print = builtins.print
+    def flushed_print(*args, **kwargs):
+        if 'flush' not in kwargs:
+            kwargs['flush'] = True
+        if 'end' not in kwargs:
+            kwargs['end'] = '\n'
+        return original_print(*args, **kwargs)
+    builtins.print = flushed_print
+
 setup_prefs()
 
 autosave_enabled = None
-        
+default_encoding = None
+save_encoding = None

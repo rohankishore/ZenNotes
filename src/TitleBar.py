@@ -131,7 +131,10 @@ class CustomTitleBar(MSFluentTitleBar):
         selection_menu = RoundMenu("Selection", self)
         tts_action = Action(text="TTS", icon=FIF.SPEAKERS.icon(QColor("white")))
         tts_action.triggered.connect(lambda: parent.tts())
+        spellcheck_action = Action(text="Check Spelling")
+        spellcheck_action.triggered.connect(lambda: parent.spellcheck_handler())
         selection_menu.addAction(tts_action)
+        selection_menu.addAction(spellcheck_action)
         self.menu.addMenu(selection_menu)
 
         view_menu = RoundMenu("View", self)

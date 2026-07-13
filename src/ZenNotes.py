@@ -22,6 +22,7 @@ from TextWidget import TWidget, get_font_for_platform
 from TitleBar import CustomTitleBar
 from zencodings import write_file, retrieve_file_with_encoding
 from Finder import Finder, FindAndReplace
+from zspellcheck import SpellChecker
 
 class NoEditorSpecified(Exception):
     pass
@@ -689,6 +690,10 @@ class Window(MSFluentWindow):
 
         thread1 = threading.Thread(target=thread_tts)
         thread1.start()
+
+    def spellcheck_handler(self):
+        spell_checker = SpellChecker(text_widget=self.current_editor)
+        spell_checker.z_spellcheck_selected(language_mode='en')
 
     def go_to_line(self):
         line_number, ok = QInputDialog.getInt(

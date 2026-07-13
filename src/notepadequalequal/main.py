@@ -18,7 +18,6 @@ except ImportError:
 import re
 import pathlib
 import pyperclip
-import builtins
 import common
 from common import *
 from platformSpecific import *
@@ -28,17 +27,7 @@ from correction import *
 
 # Redirect output to log file
 if __name__ == '__main__':
-    log_file = open(log_file, 'a', encoding='utf-8', buffering=1)
-    sys.stdout = log_file
-    sys.stderr = log_file
-    original_print = builtins.print
-    def flushed_print(*args, **kwargs):
-        if 'flush' not in kwargs:
-            kwargs['flush'] = True
-        if 'end' not in kwargs:
-            kwargs['end'] = '\n'
-        return original_print(*args, **kwargs)
-    builtins.print = flushed_print
+    setup_logging()
 
 root = tk.Tk()
 ask_quit = False
@@ -80,7 +69,7 @@ text_frame.pack(fill=tk.BOTH, expand=True)
 
 def write_settings2(*args, **kwargs):
     global tab_mode, language_mode
-    fileio.write_settings(tab_mode=tab_mode, language_mode=language_mode, autosave_enabled=common.autosave_enabled)
+    fileio.write_settings(tab_mode=tab_mode, language_mode=language_mode, autosave_enabled=common.autosave_enabled, default_encoding=common.default_encoding)
 
 def get_font_for_platform():
     if platform.system() == "Windows":
@@ -95,7 +84,10 @@ text_area = tk.Text(text_frame, width=100, height=80, wrap=tk.WORD, undo=True)
 text_area.config(font=text_font)
 fileio.text_area = text_area
 common.autosave_enabled = tk.IntVar(value=1)
+common.default_encoding = tk.StringVar(value="utf-8")
+common.save_encoding = tk.StringVar(value=common.default_encoding.get())
 common.autosave_enabled.trace_add("write", write_settings2)
+common.default_encoding.trace_add("write", write_settings2)
 
 if syntaxHighlighting:
     try:
@@ -214,10 +206,12 @@ else:
             messagebox.showerror("Error", "The file you attempted to open does not exist.")
             openFile = 0
 
-tab_mode_plain, language_mode_plain, autosave_enabled_plain = read_settings()
+tab_mode_plain, language_mode_plain, autosave_enabled_plain, default_encoding_plain = read_settings()
 tab_mode.set(tab_mode_plain)
 language_mode.set(language_mode_plain)
 common.autosave_enabled.set(autosave_enabled_plain)
+common.default_encoding.set(default_encoding_plain)
+common.save_encoding.set(default_encoding_plain)
 
 class text_scroll():
     def to_cursor(event=None):
@@ -416,17 +410,19 @@ def unmark_all_text(event=None):
 
 def update_line_number(event=None):
     line, column = text_area.index(tk.INSERT).split('.')
-    line_var.set("Line: " + line)
-    column_var.set("Column: " + column)
+    line_var.set("Line: " + line + " |")
+    column_var.set("Column: " + column + " |")
     words = text_area.get(1.0, 'end-1c').split()
-    word_count_var.set("Words: " + str(len(words)))
-    file_var.set("File: " + os.path.basename(common.current_file))
+    word_count_var.set("| Words: " + str(len(words)) + " |")
+    file_var.set("File: " + os.path.basename(common.current_file) + " |")
     if common.current_file:
         root.title(str(common.current_file) + " - Notepad==") # f"{common.current_file} - Notepad=="
+        file_var.set("File: " + os.path.basename(common.current_file) + " |")
     else:
         root.title("Notepad==")
+        file_var.set("File: " + "No File Opened" + " |")
     text_size = text_font['size']
-    text_size_indicator.set("Size: " + str(text_size)) # f"Size: {text_size}"
+    text_size_indicator.set("Size: " + str(text_size) + " pt |") # f"Size: {text_size}"
     linenums.linenums.redraw()
     # print("Status bar updated")
     root.after(100, update_line_number)
@@ -488,6 +484,7 @@ def newWindow(event=None):
         nw.Linux()
     elif platform.system() == "Windows":
         new_file()
+        common.save_encoding.set(common.default_encoding.get())
     else:
         raise platformError("There is no newWindow function available for your platform.")
 
@@ -644,6 +641,18 @@ tool_menu.add_cascade(label="Autosave On/Off", menu=autosave_toggle)
 autosave_toggle.add_radiobutton(label="On", variable=common.autosave_enabled, value=1)
 autosave_toggle.add_radiobutton(label="Off", variable=common.autosave_enabled, value=0)
 # End autosave toggle menu
+# Begin default encoding menu
+default_encoding_menu = tk.Menu(tool_menu, tearoff=0)
+tool_menu.add_cascade(label="Default encoding", menu=default_encoding_menu)
+for encoding in common.encodings:
+    default_encoding_menu.add_radiobutton(label=encoding, variable=common.default_encoding, value=encoding)
+# End default encoding menu
+# Begin save encoding menu
+encoding_menu = tk.Menu(tool_menu, tearoff=0)
+tool_menu.add_cascade(label="Encoding for this file", menu=encoding_menu)
+for encoding in common.encodings:
+    encoding_menu.add_radiobutton(label=encoding, variable=common.save_encoding, value=encoding)
+# End save encoding menu
 tool_menu.add_command(label="--- Utilities ---", state=tk.DISABLED)
 tool_menu.add_command(label="Check Spelling", command=spellcheck_handler)
 

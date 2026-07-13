@@ -1,9 +1,33 @@
-from spellchecker import SpellChecker
+import importlib
+import threading
 import re
 import tkinter as tk
 from tkinter import messagebox
+import time
 
 root = None
+
+_mainSC = None
+_spellcheckers = None
+_spellcheckers_ready = threading.Event()
+def initSC():
+    global _mainSC
+    if _mainSC is None:
+        _mainSC = importlib.import_module("spellchecker")
+    return _mainSC
+def lazySpellChecker(*args, **kwargs):
+    while _mainSC is None:
+        time.sleep(0.20)
+
+    return _mainSC.SpellChecker(*args, **kwargs)
+def loadLazyCheckers(languages):
+    global _spellcheckers
+    spellcheckers = {
+        name: lazySpellChecker(language=code)
+        for name, code in languages.items()
+    }
+    _spellcheckers = spellcheckers
+    _spellcheckers_ready.set()
 
 # Spelling stuff
 class Spelling:
@@ -24,10 +48,11 @@ class Spelling:
             "basque": "eu",
         }
 
-        self.spellcheckers = {
-            name: SpellChecker(language=code)
-            for name, code in self.languages.items()
-        }
+        threading.Thread(
+            target=loadLazyCheckers,
+            args=(self.languages,),
+            daemon=True
+        ).start()
 
     def tokenize(self, text):
         TOKEN_PATTERN = re.compile(r"\w+|\W+")
@@ -41,9 +66,11 @@ class Spelling:
         return corrected
 
     def check_spelling(self, lang='none', text=""):
+        global _spellcheckers
         if lang == 'none':
             return text
-        checker = self.spellcheckers.get(lang)
+        _spellcheckers_ready.wait()
+        checker = _spellcheckers.get(lang)
         if not checker:
             return text
         tokens = self.tokenize(text)
@@ -109,3 +136,5 @@ def approval_dialog(title, message, text):
     
     popup.wait_window()
     return returnText
+
+threading.Thread(target=initSC, daemon=True).start()
