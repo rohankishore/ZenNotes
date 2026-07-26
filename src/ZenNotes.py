@@ -14,6 +14,10 @@ import pyttsx3
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
+try:
+    import mistune
+except ImportError:
+    mistune = None
 from qfluentwidgets import *
 from qfluentwidgets import FluentIcon as FIF
 from qframelesswindow import *
@@ -36,6 +40,7 @@ class MarkdownPreview(QWidget):
         from qfluentwidgets.common.config import qconfig
         from qfluentwidgets import isDarkTheme
         self.isDarkTheme = isDarkTheme
+        self.markdown_renderer = self._build_markdown_renderer()
 
         # Create a vertical splitter
         splitter = QSplitter(self)
@@ -45,43 +50,212 @@ class MarkdownPreview(QWidget):
         # Left half: Markdown editor
         markdown_editor = QWidget(self)
         markdown_layout = QVBoxLayout(markdown_editor)
-        self.txt = QTextEdit(self)
-        self.txt.textChanged.connect(self.updateMarkdownPreview)
+        self.txt = TWidget(self)
         self.txt.setFont(get_font_for_platform(16))
         markdown_layout.addWidget(self.txt)
         splitter.addWidget(markdown_editor)
+        self.txt.text_editor.textChanged.disconnect()
+        self.txt.text_editor.textChanged.connect(self.updateMarkdownPreview)
+        self.update_word_stats = self.txt.update_word_stats
 
         # Right half: Preview
         preview = QWidget(self)
         preview_layout = QVBoxLayout(preview)
-        self.preview_txt = QTextEdit(self)
+        self.preview_txt = QTextBrowser(self)
         self.preview_txt.setReadOnly(True)
-        self.txt.setFont(get_font_for_platform(16))
+        self.preview_txt.setOpenExternalLinks(True)
+        self.preview_txt.setFont(get_font_for_platform(16))
         preview_layout.addWidget(self.preview_txt)
         splitter.addWidget(preview)
+        preview_bar = self.preview_txt.verticalScrollBar()
+        preview_bar.valueChanged.connect(self.save_preview_scrollRatio)
 
         # Set the splitter size policy to distribute the space evenly
         splitter.setSizes([self.width() // 2, self.width() // 2])
-
         # Set the splitter handle width (optional)
         splitter.setHandleWidth(1)
+        # Initialize saved scroll ratio
+        self.scroll_ratio = 0.0
+        self.saving_scroll = True  # Flag to control saving scroll ratio
 
         qconfig.themeChanged.connect(self.update_theme)
         self.update_theme()
+        self.updateMarkdownPreview()
+
+    def _build_markdown_renderer(self):
+        if mistune is None:
+            return None
+
+        plugins = [
+            "table",
+            "task_lists",
+            "strikethrough",
+            "def_list",
+            "footnotes",
+            "url",
+        ]
+
+        try:
+            return mistune.create_markdown(
+                escape=False,
+                hard_wrap=False,
+                renderer="html",
+                plugins=plugins,
+            )
+        except Exception:
+            try:
+                return mistune.create_markdown(
+                    escape=False,
+                    hard_wrap=False,
+                    renderer="html",
+                    plugins=["table", "task_lists", "strikethrough"],
+                )
+            except Exception:
+                return None
+
+    def _wrap_preview_html(self, body_html):
+        if self.isDarkTheme():
+            background = "#272727"
+            text_color = "#F5F5F5"
+            muted_color = "#BDBDBD"
+            border_color = "#444444"
+            code_bg = "#1E1E1E"
+            table_header_bg = "#333333"
+            link_color = "#7AB7FF"
+        else:
+            background = "#FAF9F8"
+            text_color = "#111111"
+            muted_color = "#555555"
+            border_color = "#D8D8D8"
+            code_bg = "#F2F2F2"
+            table_header_bg = "#EAEAEA"
+            link_color = "#005BBB"
+
+        return f"""<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    html, body {{
+      background: {background};
+      color: {text_color};
+      margin: 0;
+      padding: 0;
+      font-family: Segoe UI, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.55;
+    }}
+    body {{
+      padding: 16px 18px;
+    }}
+    a {{
+      color: {link_color};
+      text-decoration: none;
+    }}
+    a:hover {{
+      text-decoration: underline;
+    }}
+    pre, code {{
+      font-family: Consolas, Monaco, monospace;
+    }}
+    pre {{
+      background: {code_bg};
+      border: 1px solid {border_color};
+      border-radius: 8px;
+      padding: 12px;
+      overflow-x: auto;
+    }}
+    code {{
+      background: {code_bg};
+      border-radius: 4px;
+      padding: 0.15em 0.35em;
+    }}
+    pre code {{
+      background: transparent;
+      padding: 0;
+    }}
+    blockquote {{
+      margin: 12px 0;
+      padding: 0 0 0 12px;
+      border-left: 4px solid {border_color};
+      color: {muted_color};
+    }}
+    table {{
+      border-collapse: collapse;
+      width: 100%;
+      margin: 14px 0;
+    }}
+    th, td {{
+      border: 1px solid {border_color};
+      padding: 6px 10px;
+      vertical-align: top;
+    }}
+    th {{
+      background: {table_header_bg};
+    }}
+    hr {{
+      border: 0;
+      border-top: 1px solid {border_color};
+      margin: 18px 0;
+    }}
+    img {{
+      max-width: 100%;
+      height: auto;
+    }}
+    li.task-list-item {{
+      list-style: none;
+      margin-left: -1.4em;
+    }}
+    input.task-list-item-checkbox {{
+      margin-right: 0.5em;
+    }}
+  </style>
+</head>
+<body>
+{body_html}
+</body>
+</html>"""
+
+    def render_markdown(self, markdown_text):
+        if self.markdown_renderer is None:
+            return None
+
+        rendered = self.markdown_renderer(markdown_text)
+        return self._wrap_preview_html(rendered or "<p></p>")
 
     def update_theme(self):
         if self.isDarkTheme():
-            stylesheet = "QTextEdit{background-color : #272727; color : white; border : 0; font-size: 16}"
+            stylesheet = "QTextEdit, QTextBrowser{background-color : #272727; color : white; border : 0; font-size: 16}"
         else:
-            stylesheet = "QTextEdit{background-color : #FAF9F8; color : black; border : 0; font-size: 16}"
+            stylesheet = "QTextEdit, QTextBrowser{background-color : #FAF9F8; color : black; border : 0; font-size: 16}"
 
         self.txt.setStyleSheet(stylesheet)
         self.preview_txt.setStyleSheet(stylesheet)
+        self.updateMarkdownPreview()
 
     def updateMarkdownPreview(self):
+        self.txt.update_word_stats()
         txt = self.txt.toPlainText()
-        self.preview_txt.setMarkdown(txt)
+        rendered = self.render_markdown(txt)
+        self.saving_scroll = False
+        if rendered is None:
+            self.preview_txt.setMarkdown(txt)
+        else:
+            self.preview_txt.setHtml(rendered)
+        self.saving_scroll = True
+        self.restore_preview_scrollRatio()
+        QTimer.singleShot(0, self.restore_preview_scrollRatio)
 
+    def save_preview_scrollRatio(self):
+        if not self.saving_scroll:
+            return
+        try:
+            self.scroll_ratio = self.preview_txt.verticalScrollBar().value() / max(1, self.preview_txt.verticalScrollBar().maximum())
+        except Exception:
+            self.scroll_ratio = 0.0
+
+    def restore_preview_scrollRatio(self):
+        self.preview_txt.verticalScrollBar().setValue(int(self.scroll_ratio * self.preview_txt.verticalScrollBar().maximum()))
 
 class TabInterface(QFrame):
     """ Tab interface. Contains the base class to add/remove tabs """
@@ -378,16 +552,6 @@ class Window(MSFluentWindow):
                     editor.setPlainText(filedata)
                     try:
                         self.markdownInterface.updateMarkdownPreview()
-                    except Exception:
-                        pass
-                    try:
-                        self.markdownInterface.preview_txt.setMarkdown(filedata)
-                    except Exception:
-                        pass
-                    try:
-                        self.markdownInterface.preview_txt.repaint()
-                        self.markdownInterface.preview_txt.viewport().update()
-                        self.markdownInterface.preview_txt.updateGeometry()
                     except Exception:
                         pass
                     QCoreApplication.processEvents()
