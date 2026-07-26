@@ -50,6 +50,7 @@ class MarkdownPreview(QWidget):
         self.txt.setFont(get_font_for_platform(16))
         markdown_layout.addWidget(self.txt)
         splitter.addWidget(markdown_editor)
+        self.update_word_stats = self.txt.update_word_stats
 
         # Right half: Preview
         preview = QWidget(self)
