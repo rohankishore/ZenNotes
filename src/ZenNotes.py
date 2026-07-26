@@ -81,6 +81,7 @@ class MarkdownPreview(QWidget):
         self.preview_txt.setStyleSheet(stylesheet)
 
     def updateMarkdownPreview(self):
+        self.txt.update_word_stats()
         txt = self.txt.toPlainText()
         self.preview_txt.setMarkdown(txt)
 
