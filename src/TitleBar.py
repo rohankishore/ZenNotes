@@ -90,10 +90,12 @@ class CustomTitleBar(MSFluentTitleBar):
         saveas_action = Action(text="Save As", icon=FIF.SAVE_AS)
         saveas_action.setShortcut("Ctrl+Shift+S")
         saveas_action.triggered.connect(parent.save_document_as)
+        file_menu.addAction(saveas_action)
         closetab_action = Action(text="Close Tab", icon=FIF.CLOSE)
         closetab_action.setShortcut("Ctrl+W")
+        closetab_shortcut = QShortcut(QKeySequence("Ctrl+W"), self)
         closetab_action.triggered.connect(lambda: self.removeTabHandler(self.tabBar.currentIndex()))
-        file_menu.addAction(saveas_action)
+        closetab_shortcut.activated.connect(lambda: self.removeTabHandler(self.tabBar.currentIndex()))
         file_menu.addAction(closetab_action)
         self.menu.addMenu(file_menu)
 
