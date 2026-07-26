@@ -58,6 +58,7 @@ class CustomTitleBar(MSFluentTitleBar):
         # self.tabBar.currentChanged.connect(lambda i: print(self.tabBar.tabText(i)))
 
         self.hBoxLayout.insertWidget(5, self.tabBar, 1)
+        self.hBoxLayout.addSpacing(100)
         self.hBoxLayout.setStretch(6, 0)
 
         # self.hBoxLayout.insertWidget(7, self.saveButton, 0, Qt.AlignmentFlag.AlignLeft)
