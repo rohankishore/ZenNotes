@@ -45,7 +45,7 @@ class MarkdownPreview(QWidget):
         # Left half: Markdown editor
         markdown_editor = QWidget(self)
         markdown_layout = QVBoxLayout(markdown_editor)
-        self.txt = QTextEdit(self)
+        self.txt = TWidget(self)
         self.txt.textChanged.connect(self.updateMarkdownPreview)
         self.txt.setFont(get_font_for_platform(16))
         markdown_layout.addWidget(self.txt)
