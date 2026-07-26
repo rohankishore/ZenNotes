@@ -895,6 +895,10 @@ class Window(MSFluentWindow):
 
 def main():
     app = QApplication()
+    scriptDir = os.path.dirname(os.path.abspath(__file__))
+    splash_pixmap = QPixmap(os.path.join(scriptDir, "resource", "splash.png"))
+    splash_label = QSplashScreen(splash_pixmap)
+    splash_label.show()
     font = get_font_for_platform()
     nonPlainFont = get_font_for_platform(plain=False)
     app.setFont(nonPlainFont)
@@ -919,6 +923,7 @@ def main():
             file_to_open = sys.argv[1]
             QTimer.singleShot(0, lambda: w.open_file(file_to_open))
 
+    splash_label.hide()
     app.exec()
 
 if __name__ == '__main__':
