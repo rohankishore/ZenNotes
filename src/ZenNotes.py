@@ -67,12 +67,16 @@ class MarkdownPreview(QWidget):
         self.preview_txt.setFont(get_font_for_platform(16))
         preview_layout.addWidget(self.preview_txt)
         splitter.addWidget(preview)
+        preview_bar = self.preview_txt.verticalScrollBar()
+        preview_bar.valueChanged.connect(self.save_preview_scrollRatio)
 
         # Set the splitter size policy to distribute the space evenly
         splitter.setSizes([self.width() // 2, self.width() // 2])
-
         # Set the splitter handle width (optional)
         splitter.setHandleWidth(1)
+        # Initialize saved scroll ratio
+        self.scroll_ratio = 0.0
+        self.saving_scroll = True  # Flag to control saving scroll ratio
 
         qconfig.themeChanged.connect(self.update_theme)
         self.update_theme()
@@ -233,11 +237,25 @@ class MarkdownPreview(QWidget):
         self.txt.update_word_stats()
         txt = self.txt.toPlainText()
         rendered = self.render_markdown(txt)
+        self.saving_scroll = False
         if rendered is None:
             self.preview_txt.setMarkdown(txt)
         else:
             self.preview_txt.setHtml(rendered)
+        self.saving_scroll = True
+        self.restore_preview_scrollRatio()
+        QTimer.singleShot(0, self.restore_preview_scrollRatio)
 
+    def save_preview_scrollRatio(self):
+        if not self.saving_scroll:
+            return
+        try:
+            self.scroll_ratio = self.preview_txt.verticalScrollBar().value() / max(1, self.preview_txt.verticalScrollBar().maximum())
+        except Exception:
+            self.scroll_ratio = 0.0
+
+    def restore_preview_scrollRatio(self):
+        self.preview_txt.verticalScrollBar().setValue(int(self.scroll_ratio * self.preview_txt.verticalScrollBar().maximum()))
 
 class TabInterface(QFrame):
     """ Tab interface. Contains the base class to add/remove tabs """
