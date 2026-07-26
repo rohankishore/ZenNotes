@@ -58,7 +58,7 @@ class CustomTitleBar(MSFluentTitleBar):
         # self.tabBar.currentChanged.connect(lambda i: print(self.tabBar.tabText(i)))
 
         self.hBoxLayout.insertWidget(5, self.tabBar, 1)
-        self.hBoxLayout.addSpacing(100) if platform.system() == "Darwin" else print("Not adding spacing due to not macOS")
+        self.hBoxLayout.addSpacing(100) if platform.system() == "Darwin" else print("WARNING: Not adding spacing due to not macOS")
         self.hBoxLayout.setStretch(6, 0)
 
         # self.hBoxLayout.insertWidget(7, self.saveButton, 0, Qt.AlignmentFlag.AlignLeft)
