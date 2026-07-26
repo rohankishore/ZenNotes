@@ -894,6 +894,11 @@ class Window(MSFluentWindow):
         self.current_editor.set_encoding(encoding)
 
 def main():
+    if platform.system() == "Linux":
+        from quirks import get_linux_productname, crosvm_quirks
+        if "crosvm" in get_linux_productname():
+            crosvm_quirks()
+    
     app = QApplication()
     scriptDir = os.path.dirname(os.path.abspath(__file__))
     splash_pixmap = QPixmap(os.path.join(scriptDir, "resource", "splash.png"))
