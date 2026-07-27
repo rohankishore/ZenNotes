@@ -894,7 +894,16 @@ class Window(MSFluentWindow):
         self.current_editor.set_encoding(encoding)
 
 def main():
+    if platform.system() == "Linux":
+        from quirks import get_linux_productname, crosvm_quirks
+        if "crosvm" in get_linux_productname():
+            crosvm_quirks()
+    
     app = QApplication()
+    scriptDir = os.path.dirname(os.path.abspath(__file__))
+    splash_pixmap = QPixmap(os.path.join(scriptDir, "resource", "splash.png"))
+    splash_label = QSplashScreen(splash_pixmap)
+    splash_label.show()
     font = get_font_for_platform()
     nonPlainFont = get_font_for_platform(plain=False)
     app.setFont(nonPlainFont)
@@ -919,6 +928,7 @@ def main():
             file_to_open = sys.argv[1]
             QTimer.singleShot(0, lambda: w.open_file(file_to_open))
 
+    splash_label.hide()
     app.exec()
 
 if __name__ == '__main__':

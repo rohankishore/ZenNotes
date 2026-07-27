@@ -1,4 +1,4 @@
-import sys
+import platform
 from PySide6.QtWidgets import QHBoxLayout, QSizePolicy
 from PySide6.QtCore import *
 from PySide6.QtGui import QWheelEvent, QShortcut, QKeySequence
@@ -58,6 +58,7 @@ class CustomTitleBar(MSFluentTitleBar):
         # self.tabBar.currentChanged.connect(lambda i: print(self.tabBar.tabText(i)))
 
         self.hBoxLayout.insertWidget(5, self.tabBar, 1)
+        self.hBoxLayout.addSpacing(100) if platform.system() == "Darwin" else print("WARNING: Not adding spacing due to not macOS")
         self.hBoxLayout.setStretch(6, 0)
 
         # self.hBoxLayout.insertWidget(7, self.saveButton, 0, Qt.AlignmentFlag.AlignLeft)
@@ -72,8 +73,10 @@ class CustomTitleBar(MSFluentTitleBar):
         new_action = Action(text="New", icon=FIF.ADD.icon(QColor("white")))
         new_action.setShortcut("Ctrl+N")
         new_shortcut = QShortcut(QKeySequence("Ctrl+N"), self)
+        newtab_shortcut = QShortcut(QKeySequence("Ctrl+T"), self)
         new_action.triggered.connect(parent.onTabAddRequested)
         new_shortcut.activated.connect(parent.onTabAddRequested)
+        newtab_shortcut.activated.connect(parent.onTabAddRequested)
         file_menu.addAction(new_action)
         open_action = Action(text="Open", icon=FIF.SEND_FILL)
         open_action.setShortcut("Ctrl+O")
@@ -88,6 +91,13 @@ class CustomTitleBar(MSFluentTitleBar):
         saveas_action.setShortcut("Ctrl+Shift+S")
         saveas_action.triggered.connect(parent.save_document_as)
         file_menu.addAction(saveas_action)
+        file_menu.addSeparator()
+        closetab_action = Action(text="Close Tab", icon=FIF.CLOSE)
+        closetab_action.setShortcut("Ctrl+W")
+        closetab_shortcut = QShortcut(QKeySequence("Ctrl+W"), self)
+        closetab_action.triggered.connect(lambda: self.removeTabHandler(self.tabBar.currentIndex()))
+        closetab_shortcut.activated.connect(lambda: self.removeTabHandler(self.tabBar.currentIndex()))
+        file_menu.addAction(closetab_action)
         self.menu.addMenu(file_menu)
 
         edit_menu = RoundMenu("Edit", self)
