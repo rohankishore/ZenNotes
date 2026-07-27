@@ -337,6 +337,7 @@ class Window(MSFluentWindow):
         self.tabCheckTimer.start(100)
 
         self.onTabChanged(self.tabBar.currentIndex())  # Initialize current_editor reference
+        self.apply_saved_theme() # Re-set the theme after initializing UI
 
     def load_config(self):
         default_config = {"theme": "dark"}
