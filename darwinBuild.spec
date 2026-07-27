@@ -18,7 +18,9 @@ a = Analysis(
         ('src/notepadequalequal', 'notepadequalequal'),
         (spellchecker_data_path, 'spellchecker/resources'),
     ],
-    hiddenimports=[],
+    hiddenimports=[
+        "spellchecker"
+    ],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],

@@ -34,7 +34,8 @@ def run_pyinstaller():
                 main_script,
                 '--onedir',  # Create a single folder
                 '-w',  # Makes it windowed
-                '--icon=icon.ico', 
+                '--icon=icon.ico',
+                '--hidden-import=spellchecker',
                 '--add-data', 'src/resource:resource',
                 '--add-data', 'src/notepadequalequal:notepadequalequal',
                 '--add-data', f'{spellchecker_data_path}:spellchecker/resources'
