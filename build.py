@@ -11,6 +11,7 @@ def copy_icon():
 
 def get_spellchecker_data():
     site_packages_dir = site.getsitepackages()[0]
+    site_packages_dir = os.path.join(site_packages_dir, 'Lib', 'site-packages') if platform.system() == "Windows" and "venv" in site_packages_dir else site_packages_dir
     return os.path.join(site_packages_dir, 'spellchecker', 'resources')
 
 def run_pyinstaller():
