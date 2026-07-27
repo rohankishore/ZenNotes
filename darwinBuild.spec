@@ -1,6 +1,11 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+def get_spellchecker_data():
+    import site
+    site_packages_dir = site.getsitepackages()[0]
+    return os.path.join(site_packages_dir, 'spellchecker', 'resources')
 
+spellchecker_data_path = get_spellchecker_data()
 a = Analysis(
     ['src/main.py'],
     pathex=[],
@@ -8,6 +13,7 @@ a = Analysis(
     datas = [
         ('src/resource', 'resource'),
         ('src/notepadequalequal', 'notepadequalequal'),
+        (spellchecker_data_path, 'spellchecker/resources'),
     ],
     hiddenimports=[],
     hookspath=[],
