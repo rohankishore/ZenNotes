@@ -370,10 +370,7 @@ class Window(MSFluentWindow):
     def apply_saved_theme(self):
         config = self.load_config()
         theme_name = config.get("theme", "dark")
-        if theme_name == "light":
-            setTheme(Theme.LIGHT)
-        else:
-            setTheme(Theme.DARK)
+        self.set_theme(theme_name)
 
     def set_theme(self, theme_name):
         normalized_theme = str(theme_name).lower()
