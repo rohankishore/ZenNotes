@@ -323,6 +323,8 @@ class Window(MSFluentWindow):
         self.tabBar.setCurrentTab('Untitled 1')
 
         self.mode = "plaintext" # default a mode
+        self.usedRouteKeys = []
+        self.usedRouteKeys.append("Untitled 1")  # Add the initial tab to the list of used keys
 
         self.initNavigation()
         self.initWindow()
@@ -508,13 +510,14 @@ class Window(MSFluentWindow):
         # Generate a routeKey not already used
         while True:
             routeKey = f"{base_name} {idx}"
-            if routeKey not in self.text_widgets:
+            if routeKey not in self.usedRouteKeys:
                 break
             idx += 1
         self.addTab(routeKey, routeKey, '')
 
         # Set the current_editor to the newly added TWidget
         self.current_editor = self.text_widgets[routeKey]
+        self.usedRouteKeys.append(routeKey)  # Add the new routeKey to the list of used keys
 
     def checkForNoTabs(self):
         if self.tabBar.count() == 0:
