@@ -1,9 +1,12 @@
 # -*- mode: python ; coding: utf-8 -*-
+import sys
+import os
 
-def get_spellchecker_data():
-    import site
-    site_packages_dir = site.getsitepackages()[0]
-    return os.path.join(site_packages_dir, 'spellchecker', 'resources')
+spec_dir = os.path.dirname(os.path.abspath(SPEC))
+if spec_dir not in sys.path:
+    sys.path.insert(0, spec_dir)
+
+from build import get_spellchecker_data
 
 spellchecker_data_path = get_spellchecker_data()
 a = Analysis(
