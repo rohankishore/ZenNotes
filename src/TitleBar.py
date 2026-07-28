@@ -182,7 +182,8 @@ class CustomTitleBar(MSFluentTitleBar):
     def removeTabHandler(self, index: int):
         tabRouteKey = self.tabBar.tabItem(index).routeKey()
         print(tabRouteKey)
-        self.parent.usedRouteKeys.remove(tabRouteKey)
+        if tabRouteKey in self.parent.usedRouteKeys:
+            self.parent.usedRouteKeys.remove(tabRouteKey)
 
         self.tabBar.removeTab(index)
         self.parent.onTabChanged(self.tabBar.currentIndex())
