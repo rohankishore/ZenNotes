@@ -1,6 +1,14 @@
 # -*- mode: python ; coding: utf-8 -*-
+import sys
+import os
 
+spec_dir = os.path.dirname(os.path.abspath(SPEC))
+if spec_dir not in sys.path:
+    sys.path.insert(0, spec_dir)
 
+from build import get_spellchecker_data
+
+spellchecker_data_path = get_spellchecker_data()
 a = Analysis(
     ['src/main.py'],
     pathex=[],
@@ -8,8 +16,11 @@ a = Analysis(
     datas = [
         ('src/resource', 'resource'),
         ('src/notepadequalequal', 'notepadequalequal'),
+        (spellchecker_data_path, 'spellchecker/resources'),
     ],
-    hiddenimports=[],
+    hiddenimports=[
+        "spellchecker"
+    ],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
