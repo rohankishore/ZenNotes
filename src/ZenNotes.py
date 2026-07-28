@@ -620,7 +620,7 @@ class Window(MSFluentWindow):
             w.cancelButton.setText('Nah')
 
             if w.exec():
-                self.save_document()
+                self.save_all_documents()
         else:
             event.accept()  # Close the application
 
@@ -842,6 +842,12 @@ class Window(MSFluentWindow):
             print(f"File saved as: {name}")
         except Exception as e:
             QMessageBox.critical(self, "Save Error", f"An error occurred while saving the document: {e}")
+    
+    def save_all_documents(self):
+        for i in range(self.tabBar.count()):
+            self.tabBar.setCurrentIndex(i)
+            self.onTabChanged(i)
+            self.save_document()
 
     def tts(self):
         cursor = self.current_editor.textCursor()
