@@ -433,6 +433,7 @@ class Window(MSFluentWindow):
             tab_interface = TabInterface(self.tabBar.tabText(i), 'icon', routeKey, self)
             tab_interface.vBoxLayout.addWidget(t_widget)
             self.homeInterface.addWidget(tab_interface)
+            self.usedRouteKeys.append(routeKey)
         
         self.text_widgets['Markdown'] = self.markdownInterface.txt # Store markdown editor instance in dictionary
         self.tabBar.currentChanged.connect(self.onTabChanged)
