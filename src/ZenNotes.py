@@ -698,7 +698,7 @@ class Window(MSFluentWindow):
             tabDisplayName = self.tabBar.tabText(self.tabBar.currentIndex())
             self.current_editor = self.text_widgets.get(tabDisplayName)
 
-    def save_document(self):
+    def save_document(self, dlgName = ""):
         try:
             self.getEditorType()
             editor = self.current_editor
@@ -707,20 +707,24 @@ class Window(MSFluentWindow):
 
             text_to_save = editor.toPlainText()
             name = ""
+            if dlgName:
+                dlgTitle = "Save " + dlgName
+            else:
+                dlgTitle = "Save File"
 
             if not editor.filepath:
                 # No filepath set, show save dialog
                 if self.mode == "markdown":
                     name, fileExt = QFileDialog.getSaveFileName(
                         self,
-                        "Save File",
+                        dlgTitle,
                         "",
                         "Markdown Files (*.md);;Text Files (*.txt);;All Files (*)"
                     )
                 else:
                     name, fileExt = QFileDialog.getSaveFileName(
                         self,
-                        "Save File",
+                        dlgTitle,
                         "",
                         "Text Files (*.txt);;Markdown Files (*.md);;All Files (*)"
                     )
@@ -847,7 +851,7 @@ class Window(MSFluentWindow):
         for i in range(self.tabBar.count()):
             self.tabBar.setCurrentIndex(i)
             self.onTabChanged(i)
-            self.save_document()
+            self.save_document(dlgName=self.tabBar.tabText(i))
 
     def tts(self):
         cursor = self.current_editor.textCursor()
