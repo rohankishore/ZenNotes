@@ -767,6 +767,10 @@ class Window(MSFluentWindow):
                 tab_interface = self.findChild(TabInterface, old_displayed_name)
                 if tab_interface:
                     tab_interface.setObjectName(new_displayed_name)
+            for routekey in self.usedRouteKeys:
+                if routekey == old_displayed_name:
+                    self.usedRouteKeys.remove(old_displayed_name)
+                    self.usedRouteKeys.append(new_displayed_name)
             
             # NOW update UI (this may trigger signals)
             self.tabBar.setTabText(active_tab_index, new_displayed_name)
@@ -837,6 +841,10 @@ class Window(MSFluentWindow):
                 tab_interface = self.findChild(TabInterface, old_displayed_name)
                 if tab_interface:
                     tab_interface.setObjectName(new_displayed_name)
+            for routekey in self.usedRouteKeys:
+                if routekey == old_displayed_name:
+                    self.usedRouteKeys.remove(old_displayed_name)
+                    self.usedRouteKeys.append(new_displayed_name)
             
             # NOW update UI (this may trigger signals)
             self.tabBar.setTabText(active_tab_index, new_displayed_name)
