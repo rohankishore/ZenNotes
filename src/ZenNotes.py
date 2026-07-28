@@ -541,6 +541,16 @@ class Window(MSFluentWindow):
             self.setModeToMarkdown()
         else:
             self.setModeToWrite()
+        if filename in self.usedRouteKeys:
+            base_name = filename
+            idx = 2
+            # Generate a routeKey not already used
+            while True:
+                routeKey = f"{base_name} {idx}"
+                if routeKey not in self.usedRouteKeys:
+                    break
+                idx += 1
+            filename = routeKey
 
         if file_path:
             try:
@@ -589,6 +599,7 @@ class Window(MSFluentWindow):
                     editor.append(str(datetime.datetime.now()))
                 self.current_editor.encoding = encoding
                 self.current_editor.update_word_stats()
+                self.usedRouteKeys.append(filename)
                 print("Editor text length:", len(editor.toPlainText()))
             except UnicodeDecodeError:
                 MessageBox(
