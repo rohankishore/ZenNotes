@@ -26,6 +26,7 @@ class CustomTitleBar(MSFluentTitleBar):
 
     def __init__(self, parent):
         super().__init__(parent)
+        self.parent = parent
 
         # add buttons
         self.toolButtonLayout = QHBoxLayout()
@@ -179,8 +180,12 @@ class CustomTitleBar(MSFluentTitleBar):
         return not self.tabBar.tabRegion().contains(pos)
     
     def removeTabHandler(self, index: int):
+        tabRouteKey = self.tabBar.tabItem(index).routeKey()
+        if tabRouteKey in self.parent.usedRouteKeys:
+            self.parent.usedRouteKeys.remove(tabRouteKey)
+
         self.tabBar.removeTab(index)
-        self.parent().onTabChanged(self.tabBar.currentIndex())
+        self.parent.onTabChanged(self.tabBar.currentIndex())
 
     def test(self):
         print("hello")

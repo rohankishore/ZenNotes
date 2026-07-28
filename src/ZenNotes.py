@@ -269,7 +269,6 @@ class TabInterface(QFrame):
 
         self.setObjectName(objectName)
 
-
 class Window(MSFluentWindow):
     """ Main window class. Uses MSFLuentWindow to imitate the Windows 11 FLuent Design windows. """
 
@@ -323,6 +322,8 @@ class Window(MSFluentWindow):
         self.tabBar.setCurrentTab('Untitled 1')
 
         self.mode = "plaintext" # default a mode
+        self.usedRouteKeys = []
+        self.usedRouteKeys.append("Untitled 1")  # Add the initial tab to the list of used keys
 
         self.initNavigation()
         self.initWindow()
@@ -432,6 +433,7 @@ class Window(MSFluentWindow):
             tab_interface = TabInterface(self.tabBar.tabText(i), 'icon', routeKey, self)
             tab_interface.vBoxLayout.addWidget(t_widget)
             self.homeInterface.addWidget(tab_interface)
+            self.usedRouteKeys.append(routeKey)
         
         self.text_widgets['Markdown'] = self.markdownInterface.txt # Store markdown editor instance in dictionary
         self.tabBar.currentChanged.connect(self.onTabChanged)
@@ -508,13 +510,14 @@ class Window(MSFluentWindow):
         # Generate a routeKey not already used
         while True:
             routeKey = f"{base_name} {idx}"
-            if routeKey not in self.text_widgets:
+            if routeKey not in self.usedRouteKeys:
                 break
             idx += 1
         self.addTab(routeKey, routeKey, '')
 
         # Set the current_editor to the newly added TWidget
         self.current_editor = self.text_widgets[routeKey]
+        self.usedRouteKeys.append(routeKey)  # Add the new routeKey to the list of used keys
 
     def checkForNoTabs(self):
         if self.tabBar.count() == 0:
@@ -532,12 +535,22 @@ class Window(MSFluentWindow):
             self.current_editor.filepath = file_path
 
     def open_file(self, file_path):
-        filename = os.path.basename(file_path).split('/')[-1]
+        filename = os.path.basename(file_path)
         _, ext = os.path.splitext(filename)
         if ext.lower() == '.md':
             self.setModeToMarkdown()
         else:
             self.setModeToWrite()
+        if filename in self.usedRouteKeys:
+            base_name = filename
+            idx = 2
+            # Generate a routeKey not already used
+            while True:
+                routeKey = f"{base_name} {idx}"
+                if routeKey not in self.usedRouteKeys:
+                    break
+                idx += 1
+            filename = routeKey
 
         if file_path:
             try:
@@ -586,6 +599,7 @@ class Window(MSFluentWindow):
                     editor.append(str(datetime.datetime.now()))
                 self.current_editor.encoding = encoding
                 self.current_editor.update_word_stats()
+                self.usedRouteKeys.append(filename)
                 print("Editor text length:", len(editor.toPlainText()))
             except UnicodeDecodeError:
                 MessageBox(
@@ -764,6 +778,10 @@ class Window(MSFluentWindow):
                 tab_interface = self.findChild(TabInterface, old_displayed_name)
                 if tab_interface:
                     tab_interface.setObjectName(new_displayed_name)
+            for routekey in self.usedRouteKeys:
+                if routekey == old_displayed_name:
+                    self.usedRouteKeys.remove(old_displayed_name)
+                    self.usedRouteKeys.append(new_displayed_name)
             
             # NOW update UI (this may trigger signals)
             self.tabBar.setTabText(active_tab_index, new_displayed_name)
@@ -834,6 +852,10 @@ class Window(MSFluentWindow):
                 tab_interface = self.findChild(TabInterface, old_displayed_name)
                 if tab_interface:
                     tab_interface.setObjectName(new_displayed_name)
+            for routekey in self.usedRouteKeys:
+                if routekey == old_displayed_name:
+                    self.usedRouteKeys.remove(old_displayed_name)
+                    self.usedRouteKeys.append(new_displayed_name)
             
             # NOW update UI (this may trigger signals)
             self.tabBar.setTabText(active_tab_index, new_displayed_name)
