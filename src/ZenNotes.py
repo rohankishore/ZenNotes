@@ -269,7 +269,6 @@ class TabInterface(QFrame):
 
         self.setObjectName(objectName)
 
-
 class Window(MSFluentWindow):
     """ Main window class. Uses MSFLuentWindow to imitate the Windows 11 FLuent Design windows. """
 
