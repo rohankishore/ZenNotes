@@ -535,7 +535,7 @@ class Window(MSFluentWindow):
             self.current_editor.filepath = file_path
 
     def open_file(self, file_path):
-        filename = os.path.basename(file_path).split('/')[-1]
+        filename = os.path.basename(file_path)
         _, ext = os.path.splitext(filename)
         if ext.lower() == '.md':
             self.setModeToMarkdown()
