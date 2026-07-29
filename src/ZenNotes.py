@@ -614,7 +614,7 @@ class Window(MSFluentWindow):
             self.getEditorType()
         
         a = ""
-        for _, text_widget in self.text_widgets:
+        for _, text_widget in self.text_widgets.items():
             a += text_widget.toPlainText()
 
         if a.strip() != "":
