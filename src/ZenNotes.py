@@ -617,7 +617,7 @@ class Window(MSFluentWindow):
         for _, text_widget in self.text_widgets:
             a += text_widget.toPlainText()
 
-        if a != "":
+        if a.strip() != "":
 
             w = MessageBox(
                 'Confirm Exit',
