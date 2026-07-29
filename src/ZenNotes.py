@@ -868,6 +868,10 @@ class Window(MSFluentWindow):
             QMessageBox.critical(self, "Save Error", f"An error occurred while saving the document: {e}")
     
     def save_all_documents(self):
+        if self.mode == "markdown":
+            self.save_document(dlgName="Markdown Document")
+            self.setModeToWrite()
+        
         for i in range(self.tabBar.count()):
             self.tabBar.setCurrentIndex(i)
             self.onTabChanged(i)
