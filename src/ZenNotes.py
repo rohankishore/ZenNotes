@@ -715,6 +715,9 @@ class Window(MSFluentWindow):
             editor = self.current_editor
             if not editor:
                 raise NoEditorSpecified("No editor specified to save from.")
+            if not editor.toPlainText().strip():
+                print("WARNING: No text in editor to save")
+                return
 
             text_to_save = editor.toPlainText()
             name = ""
