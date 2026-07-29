@@ -869,6 +869,7 @@ class Window(MSFluentWindow):
     
     def save_all_documents(self):
         savedIndex = self.tabBar.currentIndex()
+        navigationInterfaceItem = self.navigationInterface.currentItem()
 
         if self.mode == "markdown":
             self.save_document(dlgName="Markdown Document")
@@ -880,6 +881,7 @@ class Window(MSFluentWindow):
             self.save_document(dlgName=self.tabBar.tabText(i))
 
         self.tabBar.setCurrentIndex(savedIndex)
+        self.navigationInterface.setCurrentItem(navigationInterfaceItem)
 
     def tts(self):
         cursor = self.current_editor.textCursor()
