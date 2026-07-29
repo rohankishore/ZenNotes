@@ -868,6 +868,8 @@ class Window(MSFluentWindow):
             QMessageBox.critical(self, "Save Error", f"An error occurred while saving the document: {e}")
     
     def save_all_documents(self):
+        savedIndex = self.tabBar.currentIndex()
+
         if self.mode == "markdown":
             self.save_document(dlgName="Markdown Document")
             self.setModeToWrite()
@@ -876,6 +878,8 @@ class Window(MSFluentWindow):
             self.tabBar.setCurrentIndex(i)
             self.onTabChanged(i)
             self.save_document(dlgName=self.tabBar.tabText(i))
+
+        self.tabBar.setCurrentIndex(savedIndex)
 
     def tts(self):
         cursor = self.current_editor.textCursor()
