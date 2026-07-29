@@ -613,10 +613,9 @@ class Window(MSFluentWindow):
         if not self.current_editor:
             self.getEditorType()
         
-        if self.current_editor:
-            a = self.current_editor.toPlainText()
-        else:
-            a = ""
+        a = ""
+        for _, text_widget in self.text_widgets:
+            a += text_widget.toPlainText()
 
         if a != "":
 
