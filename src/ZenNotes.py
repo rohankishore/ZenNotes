@@ -613,12 +613,11 @@ class Window(MSFluentWindow):
         if not self.current_editor:
             self.getEditorType()
         
-        if self.current_editor:
-            a = self.current_editor.toPlainText()
-        else:
-            a = ""
+        a = ""
+        for _, text_widget in self.text_widgets.items():
+            a += text_widget.toPlainText()
 
-        if a != "":
+        if a.strip() != "":
 
             w = MessageBox(
                 'Confirm Exit',
@@ -716,6 +715,9 @@ class Window(MSFluentWindow):
             editor = self.current_editor
             if not editor:
                 raise NoEditorSpecified("No editor specified to save from.")
+            if not editor.toPlainText().strip():
+                print("WARNING: No text in editor to save")
+                return
 
             text_to_save = editor.toPlainText()
             name = ""
@@ -868,10 +870,20 @@ class Window(MSFluentWindow):
             QMessageBox.critical(self, "Save Error", f"An error occurred while saving the document: {e}")
     
     def save_all_documents(self):
+        savedIndex = self.tabBar.currentIndex()
+        navigationInterfaceItem = self.navigationInterface.currentItem()
+
+        if self.mode == "markdown":
+            self.save_document(dlgName="Markdown Document")
+            self.setModeToWrite()
+        
         for i in range(self.tabBar.count()):
             self.tabBar.setCurrentIndex(i)
             self.onTabChanged(i)
             self.save_document(dlgName=self.tabBar.tabText(i))
+
+        self.tabBar.setCurrentIndex(savedIndex)
+        self.navigationInterface.setCurrentItem(navigationInterfaceItem)
 
     def tts(self):
         cursor = self.current_editor.textCursor()
